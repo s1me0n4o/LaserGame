@@ -1,0 +1,8 @@
+**/logs
+*/logs
+/logs
+*.meta
+*/metadata
+*/Library/*
+*/Temp/*
+*.vs/
