@@ -45,13 +45,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rows: 8
   cols: 8
-  boardPrefab: {fileID: 3662212637549187729, guid: 2c4780822a47fb342877edd582aaa9ac,
+  nodePrefab: {fileID: 3662212637549187729, guid: 2c4780822a47fb342877edd582aaa9ac,
     type: 3}
   nodePefabSize: 1.1
   piecesPrefabs:
   - {fileID: 906545416024518080, guid: de7a1f41f0b0b0f46b285cded98f9357, type: 3}
   - {fileID: 6501079343931468493, guid: ab3313eefccac6841bc9fcdf0a436c85, type: 3}
   - {fileID: 3475120112096005244, guid: 844e9bfbeb0289b45b973555eba36b5f, type: 3}
-  - {fileID: 3475120112096005244, guid: 844e9bfbeb0289b45b973555eba36b5f, type: 3}
-  - {fileID: 3475120112096005244, guid: 844e9bfbeb0289b45b973555eba36b5f, type: 3}
-  - {fileID: 3475120112096005244, guid: 844e9bfbeb0289b45b973555eba36b5f, type: 3}
+  - {fileID: 1490071507564382614, guid: 33fcc04f2f7d29a4bbbb90001926a8e2, type: 3}
+  - {fileID: 3474967899770295141, guid: cd5a1d9570b937e4695de89710bb3623, type: 3}
+  - {fileID: 2880410392469001509, guid: 67c12eba1f1da3b4d8853f98a984634f, type: 3}
+  piecesAlive: []

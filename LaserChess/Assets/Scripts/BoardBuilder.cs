@@ -7,16 +7,21 @@ public class BoardBuilder : MonoBehaviour
     [Header("Board")]
     public int rows = 8;
     public int cols = 8;
-    public GameObject boardPrefab;
+    public GameObject nodePrefab;
     public float nodePefabSize = 1.1f;
     
-    private float waitTime = .03f;
-    private float nodeOffset = .5f;
+    private float _waitTime = .03f;
 
     [Header("Pieces Prefabs")]
     public List<GameObject> piecesPrefabs;
-
-    private List<float[]> nodesPosition = new List<float[]>();
+    public List<GameObject> piecesAlive;
+    public static BasePiece[,] BasePieces { get; set; }
+    
+    [Header("Nodes")]
+    private List<float[]> _nodesPosition = new List<float[]>();
+    
+    public static bool isBuildFinishied = false;
+    public static bool isPlayerTurn = true;
 
     private void Start()
     {
@@ -30,33 +35,43 @@ public class BoardBuilder : MonoBehaviour
             for (int c = 0; c < cols; c++)
             {
                 var position = new Vector3(r * nodePefabSize, 0, c * nodePefabSize);
-                var node = Instantiate(boardPrefab, position, Quaternion.identity) as GameObject;
+                var node = Instantiate(nodePrefab, position, Quaternion.identity) as GameObject;
                 node.transform.SetParent(transform);
-                nodesPosition.Add(new float[] { node.transform.position.x, node.transform.position.z });
+                _nodesPosition.Add(new float[] { node.transform.position.x, node.transform.position.z });
 
                 print($"x: {node.transform.position.x} ; z: {node.transform.position.z}");
-                yield return new WaitForSeconds(waitTime);
+                yield return new WaitForSeconds(_waitTime);
             }
         }
         SpownAllPieces();
+        isBuildFinishied = true;
     }
 
     private void SpownAllPieces()
     {
+        piecesAlive = new List<GameObject>();
+        BasePieces = new BasePiece[8, 8];
     //Spown Human Pieces
         //Tank
-        SpownSinglePiece(GetNodeCenter(4, 0), 0);
+        SpownSinglePiece(4, 0, 0);
+        SpownSinglePiece(3, 0, 0);
         //JumpShip
-        SpownSinglePiece(GetNodeCenter(1, 0), 1);
-        SpownSinglePiece(GetNodeCenter(6, 0), 1);
+        SpownSinglePiece(1, 0, 1);
+        SpownSinglePiece(5, 0, 1);
+        SpownSinglePiece(2, 0, 1);
+        SpownSinglePiece(6, 0, 1);
         //Grunt
         for (int i = 0; i < rows; i++)
         {
-            SpownSinglePiece(GetNodeCenter(i, 1), 2);
+            if (i == 0 || i == 7)
+            {
+                SpownSinglePiece(i, 0, 2);
+            }
+            SpownSinglePiece(i, 1, 2);
         }
     }
 
-    private Vector3 GetNodeCenter(int x, int z)
+    public Vector3 GetNodeCenter(int x, int z)
     {
         var origin = Vector3.zero;
         origin.x = (nodePefabSize * x);
@@ -64,8 +79,11 @@ public class BoardBuilder : MonoBehaviour
         return origin;
     }
 
-    private void SpownSinglePiece(Vector3 position, int unityIndex)
+    private void SpownSinglePiece(int x, int y, int unityIndex)
     {
-        var gameObj = Instantiate(piecesPrefabs[unityIndex], position, Quaternion.identity) as GameObject;
+        var gameObj = Instantiate(piecesPrefabs[unityIndex], GetNodeCenter(x, y), Quaternion.identity) as GameObject;
+        BasePieces [x, y] = gameObj.GetComponent<BasePiece>();
+        BasePieces[x, y].SetPosition(x, y);
+        piecesAlive.Add(gameObj);
     }
 }
