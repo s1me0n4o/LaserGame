@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2844229004504070307}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.84789276, y: -0.861258, z: -6.313943}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -45,9 +45,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rows: 8
   cols: 8
-  nodePrefab: {fileID: 3662212637549187729, guid: 2c4780822a47fb342877edd582aaa9ac,
+  nodePrefab: {fileID: 8643005839631669605, guid: 0ade3f22eb6dfd24d801943add82f381,
     type: 3}
-  nodePefabSize: 1.1
+  nodePefabSize: 1
+  nodeOffset: 0.5
   piecesPrefabs:
   - {fileID: 906545416024518080, guid: de7a1f41f0b0b0f46b285cded98f9357, type: 3}
   - {fileID: 6501079343931468493, guid: ab3313eefccac6841bc9fcdf0a436c85, type: 3}
@@ -56,3 +57,6 @@ MonoBehaviour:
   - {fileID: 3474967899770295141, guid: cd5a1d9570b937e4695de89710bb3623, type: 3}
   - {fileID: 2880410392469001509, guid: 67c12eba1f1da3b4d8853f98a984634f, type: 3}
   piecesAlive: []
+  line: {fileID: 5546584167712437163, guid: 40daaf94fb60c424c93ac651e296ffbb, type: 3}
+  isBuildFinishied: 0
+  isPlayerTurn: 1

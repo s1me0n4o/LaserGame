@@ -5,12 +5,11 @@ using UnityEngine;
 
 public class SelectionManager : MonoBehaviour
 {
-    public BoardBuilder boardManager;
 
     private int _selectedX = -1;
     private int _selectedY = -1;
     private Camera _camera;
-    private float hitMaxDistance = 1000f;
+    private float hitMaxDistance = 25f;
     private BasePiece _selectedPiece;
     private bool isMoved = false;
 
@@ -19,10 +18,9 @@ public class SelectionManager : MonoBehaviour
         _camera = Camera.main;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (!BoardBuilder.isBuildFinishied)
+        if (!BoardManager.instance.isBuildFinishied)
         {
             return;
         }
@@ -43,43 +41,42 @@ public class SelectionManager : MonoBehaviour
                     //select piece
                     SelectPiece(_selectedX, _selectedY);
                 }
-                else if (isMoved == false)
+                else
                 {
                     //move
                     MovePiece(_selectedX, _selectedY);
-                }
-                else if (_selectedPiece != null && isMoved)
-                {
-                    //attack
                 }
             }
         }
     }
 
-    //TODO check some bug with moving to certen nodes => probably the calc of the node center
     private void MovePiece(int x, int y)
     {
-        if (_selectedPiece.IsPossibleMove(x,y))
+        
+        if (BoardManager.instance.allowedMoves[x,y])
         {
-            BoardBuilder.BasePieces[_selectedPiece.CurrentX, _selectedPiece.CurrentY] = null;
-            _selectedPiece.transform.position = boardManager.GetNodeCenter(x, y);
-            BoardBuilder.BasePieces[x, y] = _selectedPiece;
+            BoardManager.instance.BasePieces[_selectedPiece.CurrentX, _selectedPiece.CurrentY] = null;
+            _selectedPiece.transform.position = BoardManager.instance.GetCenterNode(x, y);
+            _selectedPiece.SetPosition(x, y);
+            BoardManager.instance.BasePieces[x, y] = _selectedPiece;
+            //isMoved = true;
         }
 
-        //deselecting the piece
+        PossibleMovesManager.instance.HideHighlights();
         _selectedPiece = null;
-        isMoved = true;
     }
 
     private void SelectPiece(int x, int y)
     {
-        if (BoardBuilder.BasePieces[x, y] == null || BoardBuilder.BasePieces[x,y].isPlayer != BoardBuilder.isPlayerTurn)
+        if (BoardManager.instance.BasePieces[x, y] == null || 
+            BoardManager.instance.BasePieces[x, y].isPlayer != BoardManager.instance.isPlayerTurn)
         {
             return;
         }
 
-        _selectedPiece = BoardBuilder.BasePieces[x, y];
-        
+        BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[x, y].IsPossibleMove();
+        PossibleMovesManager.instance.HighlightPossibleMoves(BoardManager.instance.allowedMoves);
+        _selectedPiece = BoardManager.instance.BasePieces[x, y];
     }
 
     private void SelectXandY()
@@ -87,10 +84,16 @@ public class SelectionManager : MonoBehaviour
         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
         var isHit = Physics.Raycast(ray, out RaycastHit hit, hitMaxDistance, LayerMask.GetMask("Node"));
 
+
         if (isHit)
         {
-            _selectedX = (int)hit.point.x;
-            _selectedY = (int)hit.point.z;
+            var selectionX = Math.Floor(hit.point.x);
+            _selectedX = (int)selectionX;
+            var selectionY = Math.Floor(hit.point.z);
+            _selectedY = (int)selectionY;
+
+            Debug.Log($"Selection - x: {_selectedX}, y:{_selectedY}");
+            Debug.Log($"HitPoint - x: {hit.point.x}, y:{hit.point.z}");
         }
         else
         {

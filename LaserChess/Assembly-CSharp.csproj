@@ -63,7 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\BoardBuilder.cs" />
+    <Compile Include="Assets\Scripts\BoardManager.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
     <Compile Include="Assets\Scripts\Pieces\AI\ComandUnit.cs" />
     <Compile Include="Assets\Scripts\Pieces\AI\Dreadnought.cs" />
@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\Pieces\Player\Grunt.cs" />
     <Compile Include="Assets\Scripts\Pieces\Player\JumpShip.cs" />
     <Compile Include="Assets\Scripts\Pieces\Player\Tank.cs" />
+    <Compile Include="Assets\Scripts\PossibleMovesManager.cs" />
     <Compile Include="Assets\Scripts\SelectionManager.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Unity/Laser Chess/LaserChess/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

@@ -16,8 +16,8 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
         CurrentY = y;
     }
 
-    public virtual bool IsPossibleMove(int x, int y)
+    public virtual bool[,] IsPossibleMove()
     {
-        return true;
+        return new bool[8,8];
     }
 }

@@ -15,9 +15,9 @@ public class Node : MonoBehaviour
         _startColor = _renderer.material.color;
     }
 
-    void OnMouseEnter()
+    private void OnMouseEnter()
     {
-        if (!BoardBuilder.isBuildFinishied)
+        if (!BoardManager.instance.isBuildFinishied)
         {
             return;
         }
@@ -25,9 +25,9 @@ public class Node : MonoBehaviour
         _renderer.material.color = hoverColor;
     }
 
-    void OnMouseExit()
+    private void OnMouseExit()
     {
-        if (!BoardBuilder.isBuildFinishied)
+        if (!BoardManager.instance.isBuildFinishied)
         {
             return;
         }
@@ -35,12 +35,14 @@ public class Node : MonoBehaviour
         _renderer.material.color = _startColor;
     }
 
-    void OnMouseDown()
+    private void OnMouseDown()
     {
-        if (!BoardBuilder.isBuildFinishied)
+        if (!BoardManager.instance.isBuildFinishied)
         {
             return;
         }
 
+        _renderer.material.color = Color.green;
     }
+
 }
