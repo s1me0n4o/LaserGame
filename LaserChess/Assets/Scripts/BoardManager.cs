@@ -60,7 +60,6 @@ public class BoardManager : MonoBehaviour
 
         origin.x = (_nodePefabSize * x) + _nodeOffset;
         origin.z = (_nodePefabSize * y) + _nodeOffset;
-        Debug.Log($"Ceneter Node: {origin}");
         return origin;
     }
 
@@ -82,7 +81,6 @@ public class BoardManager : MonoBehaviour
         isBuildFinishied = true;
     }
 
-
     private void SpownAllPieces()
     {
         piecesAlive = new List<GameObject>();
@@ -99,13 +97,9 @@ public class BoardManager : MonoBehaviour
             //JumpShip
             if (i == 1 || i == 5 || i == 2 || i == 6)
             {
-                SpownSinglePiece(i, 0, 0);
+                SpownSinglePiece(i, 0, 1);
             }
 
-            if (i == 1 || i == 5 || i == 2 || i == 6)
-            {
-                SpownSinglePiece(i, 0, 0);
-            }
             //Grunt
             if (i == 0 || i == 7)
             {
