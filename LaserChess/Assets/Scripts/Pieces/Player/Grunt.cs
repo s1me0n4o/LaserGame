@@ -4,6 +4,105 @@ using UnityEngine;
 
 public class Grunt : BasePiece
 {
+    private int health = 2;
+    private int atk = 1;
+
+    private void Start()
+    {
+        SetHealth(health);
+        SetAttack(atk);
+    }
+
+    public override bool[,] IsPossibleAttack()
+    {
+        var isPossibleAttack = new bool[8, 8];
+        BasePiece piecePosition;
+        int i, j;
+
+        //Top Left Diagonal ATK
+        i = CurrentX;
+        j = CurrentY;
+        while (true)
+        {
+            i--;
+            j++;
+            if (i < 0 || j >= 8)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[i, j];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[i, j] = true;
+                break;
+            }
+        }
+
+        //Bottom Right Diagonal ATK
+        i = CurrentX;
+        j = CurrentY;
+        while (true)
+        {
+            i++;
+            j--;
+            if (j < 0 || i >= 8)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[i, j];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[i, j] = true;
+                break;
+            }
+        }
+
+        //Top Right Diagonal ATK
+        i = CurrentX;
+        j = CurrentY;
+        while (true)
+        {
+            i++;
+            j++;
+            if (j >= 8 || i >= 8)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[i, j];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[i, j] = true;
+                break;
+            }
+        }
+
+        //Bottom Left Diagonal ATK
+        i = CurrentX;
+        j = CurrentY;
+        while (true)
+        {
+            i--;
+            j--;
+            if (j < 0 || i < 0)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[i, j];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[i, j] = true;
+                break;
+            }
+        }
+                       
+        return isPossibleAttack;
+    }
+
+
     public override bool[,] IsPossibleMove()
     {
         var isPossibleToMove = new bool[8, 8];

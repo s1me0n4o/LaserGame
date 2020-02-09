@@ -5,13 +5,15 @@ using UnityEngine;
 
 public class SelectionManager : MonoBehaviour
 {
+    public GameObject buletPrefab;
+
 
     private int _selectedX = -1;
     private int _selectedY = -1;
     private Camera _camera;
     private float hitMaxDistance = 25f;
     private BasePiece _selectedPiece;
-    private bool isMoved = false;
+    private bool hasMoved = false;
 
     void Start()
     {
@@ -36,34 +38,58 @@ public class SelectionManager : MonoBehaviour
             SelectXandY();
             if (_selectedX >= 0 && _selectedY >= 0)
             {
-                if (_selectedPiece == null)
+                if (!hasMoved)
                 {
-                    //select piece
-                    SelectPiece(_selectedX, _selectedY);
+                    if (_selectedPiece == null)
+                    {
+                        SelectPiece(_selectedX, _selectedY);
+                    }
+                    else
+                    {
+                        MovePiece(_selectedX, _selectedY);
+                    }
                 }
                 else
                 {
-                    //move
-                    MovePiece(_selectedX, _selectedY);
+                    if (_selectedPiece == null)
+                    {
+                        SelectPiece(_selectedX, _selectedY);
+                    }
+                    else
+                    {
+                        AttackEnemy(_selectedX, _selectedY);
+                    }
                 }
             }
         }
     }
 
+    private void AttackEnemy(int x, int y)
+    {
+        //if (PossibleMovesManager.instance.HasEnemiesToAttack())
+        //{
+            Instantiate(buletPrefab, BoardManager.instance.GetCenterNode(x, y), Quaternion.identity);
+        //}
+
+
+        PossibleMovesManager.instance.HideHighlights();
+        _selectedPiece = null;
+        hasMoved = false;
+    }
+
     private void MovePiece(int x, int y)
     {
-        
         if (BoardManager.instance.allowedMoves[x,y])
         {
             BoardManager.instance.BasePieces[_selectedPiece.CurrentX, _selectedPiece.CurrentY] = null;
             _selectedPiece.transform.position = BoardManager.instance.GetCenterNode(x, y);
             _selectedPiece.SetPosition(x, y);
             BoardManager.instance.BasePieces[x, y] = _selectedPiece;
-            //isMoved = true;
         }
 
         PossibleMovesManager.instance.HideHighlights();
         _selectedPiece = null;
+        hasMoved = true;
     }
 
     private void SelectPiece(int x, int y)
@@ -74,8 +100,17 @@ public class SelectionManager : MonoBehaviour
             return;
         }
 
-        BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[x, y].IsPossibleMove();
-        PossibleMovesManager.instance.HighlightPossibleMoves(BoardManager.instance.allowedMoves);
+        if (!hasMoved)
+        {
+            BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[x, y].IsPossibleMove();
+            PossibleMovesManager.instance.HighlightPossibleMoves(BoardManager.instance.allowedMoves);
+        }
+        else
+        {
+            BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[x, y].IsPossibleAttack();
+            PossibleMovesManager.instance.HighlightPossibleAttack(BoardManager.instance.allowedAttacks);
+        }
+
         _selectedPiece = BoardManager.instance.BasePieces[x, y];
     }
 

@@ -4,6 +4,83 @@ using UnityEngine;
 
 public class JumpShip : BasePiece
 {
+    private int health = 2;
+    private int atk = 2;
+
+    private void Start()
+    {
+        SetHealth(health);
+        SetAttack(atk);
+    }
+
+    public override bool[,] IsPossibleAttack()
+    {
+        var isPossibleAttack = new bool[8, 8];
+        BasePiece piecePosition;
+
+        //Attack Forward
+        for (int l = 0; l <= 4; l++)
+        {
+            if (CurrentY != 7 && l + CurrentY <= 7)
+            {
+
+                piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + l];
+                if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+                {
+                    isPossibleAttack[CurrentX, CurrentY + l] = true;
+                    break;
+                }
+            }
+        }
+
+        //Attack Back
+        for (int l = 0; l <= 4; l++)
+        {
+            if (CurrentY != 0 && CurrentY - l >= 0)
+            {
+
+                piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY - l];
+                if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+                {
+                    isPossibleAttack[CurrentX, CurrentY - l] = true;
+                    break;
+                }
+            }
+        }
+
+        //Attack Left
+        for (int l = 0; l <= 4; l++)
+        {
+            if (CurrentX != 0 && CurrentX - l >= 0)
+            {
+                piecePosition = BoardManager.instance.BasePieces[CurrentX - l, CurrentY];
+                if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+                {
+                    isPossibleAttack[CurrentX - l, CurrentY] = true;
+                    break;
+                }
+            }
+        }
+
+        //Attack Right
+        for (int l = 0; l <= 4; l++)
+        {
+            if (CurrentX != 7 && l + CurrentX <= 7)
+            {
+                piecePosition = BoardManager.instance.BasePieces[CurrentX + l, CurrentY];
+                if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+                {
+                    isPossibleAttack[CurrentX + l, CurrentY] = true;
+                    break;
+                }
+            }
+       }
+
+        return isPossibleAttack;
+    }
+
+
+
     public override bool[,] IsPossibleMove()
     {
         var isPossibleToMove = new bool[8, 8];
@@ -36,7 +113,7 @@ public class JumpShip : BasePiece
     private void JumpShipMove(int x, int y, ref bool[,] isPossibleToMove)
     {
         BasePiece piecePosition;
-        if (x >= 0 && x < 8 && y >= 0 && y < 0)
+        if (x >= 0 && x < 8 && y >= 0 && y < 8)
         {
             piecePosition = BoardManager.instance.BasePieces[x, y];
             if (piecePosition == null)

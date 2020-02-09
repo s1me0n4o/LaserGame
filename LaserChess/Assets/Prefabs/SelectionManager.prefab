@@ -43,3 +43,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05c4988dc8df71c469fb110bed396570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buletPrefab: {fileID: 3589990183919030101, guid: 43d296281623cc14082011eebe7d887e,
+    type: 3}

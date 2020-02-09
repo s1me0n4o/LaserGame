@@ -43,6 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b50c1910e0f62146abb77bb90e6878f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlitePrefab: {fileID: 2428560001258055040, guid: 4888ed3d771a9314a9eb73fd8810e213,
+  highliteMovePrefab: {fileID: 2428560001258055040, guid: 4888ed3d771a9314a9eb73fd8810e213,
+    type: 3}
+  highliteAttackPrefab: {fileID: 2428560001258055040, guid: 0ac324248e24e9a47aaac85371b87758,
     type: 3}
   highlightedObjects: []

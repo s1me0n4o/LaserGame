@@ -4,6 +4,97 @@ using UnityEngine;
 
 public class Tank : BasePiece
 {
+    private int health = 4;
+    private int atk = 2;
+
+    private void Start()
+    {
+        SetHealth(health);
+        SetAttack(atk);
+    }
+
+    public override bool[,] IsPossibleAttack()
+    {
+        var isPossibleAttack = new bool[8, 8];
+        BasePiece piecePosition;
+        int i;
+
+        //ATK Forward
+        i = CurrentY;
+        while (true)
+        {
+            i++;
+            if (i >= 8)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[CurrentX, i];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[CurrentX, i] = true;
+                break;
+            }
+        }
+
+        //ATK Back
+        i = CurrentY;
+        while (true)
+        {
+            i--;
+            if (i < 0)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[CurrentX, i];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[CurrentX, i] = true;
+                break;
+            }
+        }
+
+        //ATK Left
+        i = CurrentX;
+        while (true)
+        {
+            i--;
+            if (i < 0)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[i, CurrentY];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[i, CurrentY] = true;
+                break;
+            }
+
+        }
+
+        //ATK Right
+        i = CurrentX;
+        while (true)
+        {
+            i++;
+            if (i >= 8)
+            {
+                break;
+            }
+
+            piecePosition = BoardManager.instance.BasePieces[i, CurrentY];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[i, CurrentY] = true;
+                break;
+            }
+
+        }
+
+        return isPossibleAttack;
+    }
 
     //TODO Fixed range up to 3 spaces
     public override bool[,] IsPossibleMove()

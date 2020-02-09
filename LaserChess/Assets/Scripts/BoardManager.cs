@@ -29,6 +29,7 @@ public class BoardManager : MonoBehaviour
 
     public BasePiece[,] BasePieces { get; set; }
     public bool[,] allowedMoves { get; set; }
+    public bool[,] allowedAttacks { get; set; }
 
     private void Awake()
     {
@@ -105,7 +106,16 @@ public class BoardManager : MonoBehaviour
             {
                 SpownSinglePiece(i, 0, 2);
             }
-            SpownSinglePiece(i, 1, 2);
+
+            SpownSinglePiece(i, 1, 2); 
+            
+            ////spown test comanders
+           SpownSinglePiece(i, 4, 3);
+            //if (i == 0 || i == 7)
+            //{
+            //SpownSinglePiece(i, 3, 3);
+            //    SpownSinglePiece(i, 2, 3);
+            //}
         }
         
     }
