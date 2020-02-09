@@ -35,6 +35,10 @@ public class Tank : BasePiece
                 isPossibleAttack[CurrentX, i] = true;
                 break;
             }
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
+                break;
+            }
         }
 
         //ATK Back
@@ -53,6 +57,11 @@ public class Tank : BasePiece
                 isPossibleAttack[CurrentX, i] = true;
                 break;
             }
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
+                break;
+            }
+            
         }
 
         //ATK Left
@@ -72,6 +81,11 @@ public class Tank : BasePiece
                 break;
             }
 
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
+                break;
+            }
+
         }
 
         //ATK Right
@@ -88,6 +102,11 @@ public class Tank : BasePiece
             if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[i, CurrentY] = true;
+                break;
+            }
+
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
                 break;
             }
 

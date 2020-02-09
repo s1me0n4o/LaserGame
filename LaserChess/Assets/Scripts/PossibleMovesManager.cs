@@ -29,14 +29,6 @@ public class PossibleMovesManager : MonoBehaviour
         highlightedAttackingObjects = new List<GameObject>();
     }
 
-    //public bool HasEnemiesToAttack()
-    //{
-    //    if (highlightedAttackingObjects.Count > 0)
-    //        return true;
-    //    else
-    //        return false;
-    //}
-
     public void HighlightPossibleMoves(bool[,] moves)
     {
         var rows = BoardManager.instance.GetRows();

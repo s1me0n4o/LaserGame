@@ -37,6 +37,10 @@ public class Grunt : BasePiece
                 isPossibleAttack[i, j] = true;
                 break;
             }
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
+                break;
+            }
         }
 
         //Bottom Right Diagonal ATK
@@ -55,6 +59,10 @@ public class Grunt : BasePiece
             if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[i, j] = true;
+                break;
+            }
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
                 break;
             }
         }
@@ -77,6 +85,10 @@ public class Grunt : BasePiece
                 isPossibleAttack[i, j] = true;
                 break;
             }
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
+                break;
+            }
         }
 
         //Bottom Left Diagonal ATK
@@ -95,6 +107,10 @@ public class Grunt : BasePiece
             if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[i, j] = true;
+                break;
+            }
+            if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+            {
                 break;
             }
         }

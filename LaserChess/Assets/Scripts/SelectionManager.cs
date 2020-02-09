@@ -13,6 +13,7 @@ public class SelectionManager : MonoBehaviour
     private Camera _camera;
     private float hitMaxDistance = 25f;
     private BasePiece _selectedPiece;
+    private BasePiece _currentSelection;
     private bool hasMoved = false;
 
     void Start()
@@ -32,7 +33,6 @@ public class SelectionManager : MonoBehaviour
             return;
         }
 
-        //if we hit a node
         if (Input.GetMouseButtonDown(0))
         {
             SelectXandY();
@@ -51,14 +51,7 @@ public class SelectionManager : MonoBehaviour
                 }
                 else
                 {
-                    if (_selectedPiece == null)
-                    {
-                        SelectPiece(_selectedX, _selectedY);
-                    }
-                    else
-                    {
-                        AttackEnemy(_selectedX, _selectedY);
-                    }
+                    AttackEnemy(_selectedX, _selectedY);
                 }
             }
         }
@@ -66,30 +59,56 @@ public class SelectionManager : MonoBehaviour
 
     private void AttackEnemy(int x, int y)
     {
-        //if (PossibleMovesManager.instance.HasEnemiesToAttack())
-        //{
-            Instantiate(buletPrefab, BoardManager.instance.GetCenterNode(x, y), Quaternion.identity);
-        //}
+        if (BoardManager.instance.allowedAttacks[x,y])
+        {
+            GameObject bulletGameObject = (GameObject)Instantiate(buletPrefab,
+                                                        BoardManager.instance.GetCenterNode(_currentSelection.CurrentX, _currentSelection.CurrentY), 
+                                                        Quaternion.identity);
+            Bullet bullet = bulletGameObject.GetComponent<Bullet>();
+            if (bullet != null)
+            {
+                bullet.AtkTarget(BoardManager.instance.GetCenterNode(x, y));
+            }
 
-
-        PossibleMovesManager.instance.HideHighlights();
-        _selectedPiece = null;
-        hasMoved = false;
+            PossibleMovesManager.instance.HideHighlights();
+            hasMoved = false;
+            _selectedPiece = null;
+        }
+        else
+        {
+            print("KOR");
+            _selectedPiece = null;
+            PossibleMovesManager.instance.HideHighlights();
+            hasMoved = false;
+        }
     }
 
     private void MovePiece(int x, int y)
     {
-        if (BoardManager.instance.allowedMoves[x,y])
+        if (BoardManager.instance.allowedMoves[x,y] && 
+            BoardManager.instance.BasePieces[_selectedPiece.CurrentX, _selectedPiece.CurrentY] != BoardManager.instance.BasePieces[x, y])
         {
             BoardManager.instance.BasePieces[_selectedPiece.CurrentX, _selectedPiece.CurrentY] = null;
             _selectedPiece.transform.position = BoardManager.instance.GetCenterNode(x, y);
             _selectedPiece.SetPosition(x, y);
             BoardManager.instance.BasePieces[x, y] = _selectedPiece;
+
+            PossibleMovesManager.instance.HideHighlights();
+            hasMoved = true;
+        }
+        else
+        {
+            _selectedPiece = null;
+            PossibleMovesManager.instance.HideHighlights();
+
         }
 
-        PossibleMovesManager.instance.HideHighlights();
+        if (hasMoved)
+        {
+            BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[x, y].IsPossibleAttack();
+            PossibleMovesManager.instance.HighlightPossibleAttack(BoardManager.instance.allowedAttacks);
+        }
         _selectedPiece = null;
-        hasMoved = true;
     }
 
     private void SelectPiece(int x, int y)
@@ -105,13 +124,9 @@ public class SelectionManager : MonoBehaviour
             BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[x, y].IsPossibleMove();
             PossibleMovesManager.instance.HighlightPossibleMoves(BoardManager.instance.allowedMoves);
         }
-        else
-        {
-            BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[x, y].IsPossibleAttack();
-            PossibleMovesManager.instance.HighlightPossibleAttack(BoardManager.instance.allowedAttacks);
-        }
 
         _selectedPiece = BoardManager.instance.BasePieces[x, y];
+        _currentSelection = _selectedPiece;
     }
 
     private void SelectXandY()

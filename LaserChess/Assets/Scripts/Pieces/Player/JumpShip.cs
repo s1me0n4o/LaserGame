@@ -30,6 +30,10 @@ public class JumpShip : BasePiece
                     isPossibleAttack[CurrentX, CurrentY + l] = true;
                     break;
                 }
+                if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+                {
+                    break;
+                }
             }
         }
 
@@ -43,6 +47,10 @@ public class JumpShip : BasePiece
                 if (piecePosition != null && piecePosition.isPlayer != isPlayer)
                 {
                     isPossibleAttack[CurrentX, CurrentY - l] = true;
+                    break;
+                }
+                if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+                {
                     break;
                 }
             }
@@ -59,6 +67,10 @@ public class JumpShip : BasePiece
                     isPossibleAttack[CurrentX - l, CurrentY] = true;
                     break;
                 }
+                if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+                {
+                    break;
+                }
             }
         }
 
@@ -71,6 +83,10 @@ public class JumpShip : BasePiece
                 if (piecePosition != null && piecePosition.isPlayer != isPlayer)
                 {
                     isPossibleAttack[CurrentX + l, CurrentY] = true;
+                    break;
+                }
+                if (piecePosition != null && piecePosition.isPlayer == isPlayer)
+                {
                     break;
                 }
             }
