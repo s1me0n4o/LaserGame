@@ -7,12 +7,14 @@ using UnityEngine;
 public abstract class BasePiece : MonoBehaviour, IBasePiece
 {
     public bool isPlayer;
+    public bool hasBeenMoved;
 
     public int CurrentX { get; set; }
     public int CurrentY { get; set; }
 
     public int Health { get; set; }
     public int Attack { get; set; }
+
 
     public void SetPosition(int x, int y)
     {

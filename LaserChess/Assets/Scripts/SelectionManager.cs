@@ -18,6 +18,7 @@ public class SelectionManager : MonoBehaviour
 
     void Start()
     {
+        hasMoved = false;
         _camera = Camera.main;
     }
 
@@ -53,12 +54,13 @@ public class SelectionManager : MonoBehaviour
                 {
                     AttackEnemy(_selectedX, _selectedY);
                 }
-            }
+        }
         }
     }
 
     private void AttackEnemy(int x, int y)
     {
+
         if (BoardManager.instance.allowedAttacks[x,y])
         {
             GameObject bulletGameObject = (GameObject)Instantiate(buletPrefab,
@@ -76,10 +78,9 @@ public class SelectionManager : MonoBehaviour
         }
         else
         {
-            print("KOR");
-            _selectedPiece = null;
-            PossibleMovesManager.instance.HideHighlights();
-            hasMoved = false;
+            print("Attack the suggested zones. If there are no such zones, no more available moves for this turn! Suggested end of turn.");
+            //_selectedPiece = null;
+            //PossibleMovesManager.instance.HideHighlights();
         }
     }
 
@@ -94,20 +95,27 @@ public class SelectionManager : MonoBehaviour
             BoardManager.instance.BasePieces[x, y] = _selectedPiece;
 
             PossibleMovesManager.instance.HideHighlights();
+            _selectedPiece.hasBeenMoved = true;
             hasMoved = true;
         }
         else
         {
             _selectedPiece = null;
             PossibleMovesManager.instance.HideHighlights();
-
         }
 
         if (hasMoved)
         {
             BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[x, y].IsPossibleAttack();
             PossibleMovesManager.instance.HighlightPossibleAttack(BoardManager.instance.allowedAttacks);
+            _selectedPiece.hasBeenMoved = true;
         }
+        else
+        {
+            Debug.Log("No possible moves");
+        }
+ 
+        
         _selectedPiece = null;
     }
 
@@ -119,14 +127,21 @@ public class SelectionManager : MonoBehaviour
             return;
         }
 
-        if (!hasMoved)
+        if (!hasMoved && !BoardManager.instance.BasePieces[x, y].hasBeenMoved)
         {
             BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[x, y].IsPossibleMove();
             PossibleMovesManager.instance.HighlightPossibleMoves(BoardManager.instance.allowedMoves);
+            _selectedPiece = BoardManager.instance.BasePieces[x, y];
+            _currentSelection = _selectedPiece;
+
+        }
+        else
+        {
+            Debug.Log("Already moved this piece");
+
+            _selectedPiece = null;
         }
 
-        _selectedPiece = BoardManager.instance.BasePieces[x, y];
-        _currentSelection = _selectedPiece;
     }
 
     private void SelectXandY()

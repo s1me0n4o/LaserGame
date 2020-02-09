@@ -19,11 +19,10 @@ public class JumpShip : BasePiece
         BasePiece piecePosition;
 
         //Attack Forward
-        for (int l = 0; l <= 4; l++)
+        for (int l = 1; l <= 4; l++)
         {
             if (CurrentY != 7 && l + CurrentY <= 7)
             {
-
                 piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + l];
                 if (piecePosition != null && piecePosition.isPlayer != isPlayer)
                 {
@@ -38,7 +37,7 @@ public class JumpShip : BasePiece
         }
 
         //Attack Back
-        for (int l = 0; l <= 4; l++)
+        for (int l = 1; l <= 4; l++)
         {
             if (CurrentY != 0 && CurrentY - l >= 0)
             {
@@ -57,7 +56,7 @@ public class JumpShip : BasePiece
         }
 
         //Attack Left
-        for (int l = 0; l <= 4; l++)
+        for (int l = 1; l <= 4; l++)
         {
             if (CurrentX != 0 && CurrentX - l >= 0)
             {
@@ -75,7 +74,7 @@ public class JumpShip : BasePiece
         }
 
         //Attack Right
-        for (int l = 0; l <= 4; l++)
+        for (int l = 1; l <= 4; l++)
         {
             if (CurrentX != 7 && l + CurrentX <= 7)
             {
