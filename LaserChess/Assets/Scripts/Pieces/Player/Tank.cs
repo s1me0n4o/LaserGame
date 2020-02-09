@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Tank : BasePiece
 {
+
+    //TODO Fixed range up to 3 spaces
     public override bool[,] IsPossibleMove()
     {
         var isPossibleToMove = new bool[8, 8];
