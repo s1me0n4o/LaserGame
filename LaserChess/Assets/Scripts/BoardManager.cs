@@ -110,7 +110,7 @@ public class BoardManager : MonoBehaviour
             SpownSinglePiece(i, 1, 2); 
             
             ////spown test comanders
-           SpownSinglePiece(i, 4, 3);
+           SpownSinglePiece(i, 4, 5);
             //if (i == 0 || i == 7)
             //{
             //SpownSinglePiece(i, 3, 3);

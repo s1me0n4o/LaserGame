@@ -69,7 +69,7 @@ public class SelectionManager : MonoBehaviour
             Bullet bullet = bulletGameObject.GetComponent<Bullet>();
             if (bullet != null)
             {
-                bullet.AtkTarget(BoardManager.instance.GetCenterNode(x, y));
+                bullet.AtkTarget(BoardManager.instance.BasePieces[x, y], BoardManager.instance.BasePieces[_currentSelection.CurrentX, _currentSelection.CurrentY].Attack);
             }
 
             PossibleMovesManager.instance.HideHighlights();

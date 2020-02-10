@@ -4,13 +4,27 @@ using UnityEngine;
 
 public class Grunt : BasePiece
 {
-    private int health = 2;
-    private int atk = 1;
+    public HealthBar healthBar;
+
+    private int _health = 2;
+    private int _atk = 1;
 
     private void Start()
     {
-        SetHealth(health);
-        SetAttack(atk);
+        healthBar.SetMaxHealth(_health);
+        SetHealth(_health);
+        SetAttack(_atk);
+    }
+
+    public override void TakeDmg(int damage)
+    {
+        _health -= damage;
+        healthBar.SetHealth(_health);
+
+        if (_health <= 0)
+        {
+            Die();
+        }
     }
 
     public override bool[,] IsPossibleAttack()
@@ -117,7 +131,6 @@ public class Grunt : BasePiece
                        
         return isPossibleAttack;
     }
-
 
     public override bool[,] IsPossibleMove()
     {

@@ -32,6 +32,21 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
         Attack = attack;
     }
 
+    public virtual void TakeDmg(int damage)
+    {
+        Health -= damage;
+
+        if (Health <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        Destroy(gameObject);
+    }
+
     public virtual bool[,] IsPossibleAttack()
     {
         return new bool[8, 8];
@@ -42,13 +57,7 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
         return new bool[8,8];
     }
 
-    public virtual void TakeDamege()
-    {
-        if (Health <= 0)
-        {
-            Die(gameObject);
-        }
-    }
+ 
 
     private void Die(GameObject go)
     {

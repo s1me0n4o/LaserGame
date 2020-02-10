@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class JumpShip : BasePiece
 {
-    private int health = 2;
-    private int atk = 2;
+    public HealthBar healthBar;
+
+    private int _health = 2;
+    private int _atk = 2;
 
     private void Start()
     {
-        SetHealth(health);
-        SetAttack(atk);
+        SetHealth(_health);
+        SetAttack(_atk);
     }
 
     public override bool[,] IsPossibleAttack()
@@ -135,6 +137,16 @@ public class JumpShip : BasePiece
             {
                 isPossibleToMove[x, y] = true;
             }
+        }
+    }
+    public override void TakeDmg(int damage)
+    {
+        _health -= damage;
+        healthBar.SetHealth(_health);
+
+        if (_health <= 0)
+        {
+            Die();
         }
     }
 }

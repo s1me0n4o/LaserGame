@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BoardManager.cs" />
+    <Compile Include="Assets\Scripts\HealthBar.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
     <Compile Include="Assets\Scripts\Pieces\AI\ComandUnit.cs" />
     <Compile Include="Assets\Scripts\Pieces\AI\Dreadnought.cs" />

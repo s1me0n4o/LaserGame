@@ -4,13 +4,26 @@ using UnityEngine;
 
 public class Tank : BasePiece
 {
-    private int health = 4;
-    private int atk = 2;
+    public HealthBar healthBar;
+
+    private int _health = 4;
+    private int _atk = 2;
 
     private void Start()
     {
-        SetHealth(health);
-        SetAttack(atk);
+        SetHealth(_health);
+        SetAttack(_atk);
+    }
+
+    public override void TakeDmg(int damage)
+    {
+        _health -= damage;
+        healthBar.SetHealth(_health);
+
+        if (_health <= 0)
+        {
+            Die();
+        }
     }
 
     public override bool[,] IsPossibleAttack()

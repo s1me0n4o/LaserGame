@@ -7,11 +7,13 @@ public class Bullet : MonoBehaviour
 {
     public float speed = 70f;
 
-    private Vector3 _target;
+    private BasePiece _target;
+    private int _dmg = 0;
 
-    public void AtkTarget(Vector3 target)
+    public void AtkTarget(BasePiece target, int dmg)
     {
         _target = target;
+        _dmg = dmg;
     }
 
     private void Update()
@@ -21,7 +23,7 @@ public class Bullet : MonoBehaviour
             return;
         }
 
-        var direction = _target - this.transform.position;
+        var direction = _target.transform.position - this.transform.position;
         var distancePerFrame = speed * Time.deltaTime;
 
         //checking if current distance is lower than distance in the current frame a.k.a if we have already hit the target
@@ -37,8 +39,14 @@ public class Bullet : MonoBehaviour
 
     private void HitTheTarget()
     {
+        Damage(_target, _dmg);
         Destroy(gameObject);
         
         return;
+    }
+
+    private void Damage(BasePiece target, int dmg)
+    {
+        target.TakeDmg(dmg);
     }
 }
