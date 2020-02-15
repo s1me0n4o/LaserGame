@@ -18,14 +18,12 @@ public class BoardManager : MonoBehaviour
     [Header("Pieces Prefabs")]
     public List<GameObject> piecesPrefabs;
 
-    private List<GameObject> piecesAlive;
+    public List<GameObject> piecesAlive;
     
     [Header("Nodes")]
     public List<float[]> _nodesPosition = new List<float[]>();
-
       
     public bool isBuildFinishied = false;
-    public bool isPlayerTurn = true;
 
     public BasePiece[,] BasePieces { get; set; }
     public bool[,] allowedMoves { get; set; }
@@ -86,9 +84,9 @@ public class BoardManager : MonoBehaviour
     {
         piecesAlive = new List<GameObject>();
         BasePieces = new BasePiece[8, 8];
-        //Spown Human Pieces
         for (int i = 0; i < _rows; i++)
         {
+            //Spown Human Pieces
             //Tank
             if (i == 4 || i == 3)
             {
@@ -107,24 +105,54 @@ public class BoardManager : MonoBehaviour
                 SpownSinglePiece(i, 0, 2);
             }
 
-            SpownSinglePiece(i, 1, 2); 
-            
-            ////spown test comanders
-           SpownSinglePiece(i, 4, 5);
-            //if (i == 0 || i == 7)
-            //{
-            //SpownSinglePiece(i, 3, 3);
-            //    SpownSinglePiece(i, 2, 3);
-            //}
+            SpownSinglePiece(i, 1, 2);
+
+            //Spown AI Pieces
+            //Row 8
+            if (i == 4 || i == 3)
+            {
+                SpownSinglePiece(i, 7, 3);
+            }
+            else if (i == 5 || i == 2)
+            {
+                SpownSinglePiece(i, 7, 4);
+            }
+            else
+            {
+                SpownSinglePiece(i, 7, 5);
+            }
+
+            //Row 7
+            if (i == 5 || i == 2 || i == 4 || i == 3)
+            {
+                SpownSinglePiece(i, 6, 4);
+            }
+            else
+            {
+                SpownSinglePiece(i, 6, 5);
+            }
+
+            //Row 5
+            if (i == 0 || i == 7)
+            {
+                SpownSinglePiece(i, 5, 4);
+            }
+            else
+            {
+                SpownSinglePiece(i, 5, 5);
+            }
+
+            //Row 4
+            SpownSinglePiece(i, 4, 5);
         }
-        
+
     }
 
     private void SpownSinglePiece(int x, int y, int unityIndex)
     {
         var gameObj = Instantiate(piecesPrefabs[unityIndex], GetCenterNode(x, y), Quaternion.identity) as GameObject;
         gameObj.transform.SetParent(transform);
-        BasePieces [x, y] = gameObj.GetComponent<BasePiece>();
+        BasePieces[x, y] = gameObj.GetComponent<BasePiece>();
         BasePieces[x, y].SetPosition(x, y);
         piecesAlive.Add(gameObj);
     }

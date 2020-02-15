@@ -8,6 +8,7 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
 {
     public bool isPlayer;
     public bool hasBeenMoved;
+    public bool hasAttacked;
 
     public int CurrentX { get; set; }
     public int CurrentY { get; set; }
@@ -15,6 +16,7 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
     public int Health { get; set; }
     public int Attack { get; set; }
 
+    public event Action<int> OnHealthChanged = delegate { };
 
     public void SetPosition(int x, int y)
     {
@@ -35,6 +37,7 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
     public virtual void TakeDmg(int damage)
     {
         Health -= damage;
+        OnHealthChanged(Health);
 
         if (Health <= 0)
         {
@@ -45,6 +48,7 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
     public void Die()
     {
         Destroy(gameObject);
+        BoardManager.instance.piecesAlive.Remove(gameObject);
     }
 
     public virtual bool[,] IsPossibleAttack()

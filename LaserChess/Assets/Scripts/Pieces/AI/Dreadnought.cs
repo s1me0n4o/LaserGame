@@ -5,14 +5,16 @@ using UnityEngine;
 //TODO Should attack everybody around him
 public class Dreadnought : BasePiece
 {
-    public HealthBar healthBar;
+    public GameObject healthBar;
+    private HealthBar _healthbar;
 
     private int _health = 5;
     private int _atk = 2;
 
     private void Start()
     {
-        healthBar.SetMaxHealth(_health);
+        _healthbar = GetComponentInChildren<HealthBar>();
+        _healthbar.SetMaxHealth(_health);
         SetHealth(_health);
         SetAttack(_atk);
     }
@@ -20,7 +22,7 @@ public class Dreadnought : BasePiece
     public override void TakeDmg(int damage)
     {
         _health -= damage;
-        healthBar.SetHealth(_health);
+        _healthbar.SetHealth(_health);
 
         if (_health <= 0)
         {

@@ -21,9 +21,9 @@ public class Bullet : MonoBehaviour
         if (_target == null)
         {
             return;
-        }
+        }        
 
-        var direction = _target.transform.position - this.transform.position;
+        var direction = new Vector3(_target.transform.position.x, 0.5f, _target.transform.position.z) - this.transform.position;
         var distancePerFrame = speed * Time.deltaTime;
 
         //checking if current distance is lower than distance in the current frame a.k.a if we have already hit the target

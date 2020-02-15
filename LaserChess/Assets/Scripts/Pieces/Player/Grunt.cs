@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class Grunt : BasePiece
 {
-    public HealthBar healthBar;
+    public GameObject healthBar;
+    private HealthBar _healthbar;
 
     private int _health = 2;
     private int _atk = 1;
 
     private void Start()
     {
-        healthBar.SetMaxHealth(_health);
+        _healthbar = GetComponentInChildren<HealthBar>();
+        _healthbar.SetMaxHealth(_health);
         SetHealth(_health);
         SetAttack(_atk);
     }
@@ -19,7 +21,7 @@ public class Grunt : BasePiece
     public override void TakeDmg(int damage)
     {
         _health -= damage;
-        healthBar.SetHealth(_health);
+        _healthbar.SetHealth(_health);
 
         if (_health <= 0)
         {

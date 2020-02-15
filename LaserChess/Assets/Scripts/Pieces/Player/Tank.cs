@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class Tank : BasePiece
 {
-    public HealthBar healthBar;
+    public GameObject healthBar;
+    private HealthBar _healthbar;
 
     private int _health = 4;
     private int _atk = 2;
 
     private void Start()
     {
+        _healthbar = GetComponentInChildren<HealthBar>();
+        _healthbar.SetMaxHealth(_health);
+
         SetHealth(_health);
         SetAttack(_atk);
     }
@@ -18,7 +22,7 @@ public class Tank : BasePiece
     public override void TakeDmg(int damage)
     {
         _health -= damage;
-        healthBar.SetHealth(_health);
+        _healthbar.SetHealth(_health);
 
         if (_health <= 0)
         {

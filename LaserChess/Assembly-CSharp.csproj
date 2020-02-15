@@ -64,11 +64,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BoardManager.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\HealthBar.cs" />
+    <Compile Include="Assets\Scripts\LockEndTurnButton.cs" />
     <Compile Include="Assets\Scripts\Node.cs" />
+    <Compile Include="Assets\Scripts\Pieces\AI\AI.cs" />
     <Compile Include="Assets\Scripts\Pieces\AI\ComandUnit.cs" />
     <Compile Include="Assets\Scripts\Pieces\AI\Dreadnought.cs" />
     <Compile Include="Assets\Scripts\Pieces\AI\Drone.cs" />
+    <Compile Include="Assets\Scripts\Pieces\AI\MiniMaxAlgorithm.cs" />
     <Compile Include="Assets\Scripts\Pieces\BasePiece.cs" />
     <Compile Include="Assets\Scripts\Pieces\Bullet.cs" />
     <Compile Include="Assets\Scripts\Pieces\IBasePiece.cs" />
@@ -77,6 +81,7 @@
     <Compile Include="Assets\Scripts\Pieces\Player\Tank.cs" />
     <Compile Include="Assets\Scripts\PossibleMovesManager.cs" />
     <Compile Include="Assets\Scripts\SelectionManager.cs" />
+    <Compile Include="Assets\Scripts\UI\PlayerTurn.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Unity/Laser Chess/LaserChess/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

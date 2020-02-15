@@ -6,7 +6,7 @@ using UnityEngine;
 public class SelectionManager : MonoBehaviour
 {
     public GameObject buletPrefab;
-
+    public bool hasMoved = false;
 
     private int _selectedX = -1;
     private int _selectedY = -1;
@@ -14,7 +14,7 @@ public class SelectionManager : MonoBehaviour
     private float hitMaxDistance = 25f;
     private BasePiece _selectedPiece;
     private BasePiece _currentSelection;
-    private bool hasMoved = false;
+    private bool _hasAttacked = false;
 
     void Start()
     {
@@ -22,8 +22,25 @@ public class SelectionManager : MonoBehaviour
         _camera = Camera.main;
     }
 
+    private void ChangeHasMoved(bool isPlayerTurn)
+    {
+        hasMoved = false;
+        PossibleMovesManager.instance.HideHighlights();
+
+        foreach (var item in BoardManager.instance.BasePieces)
+        {
+            if (item != null)
+            {
+                item.hasBeenMoved = false;
+                item.hasAttacked = false;
+            }
+        }
+    }
+
     void Update()
     {
+        GameManager.OnTurnChange += ChangeHasMoved;
+
         if (!BoardManager.instance.isBuildFinishied)
         {
             return;
@@ -39,7 +56,7 @@ public class SelectionManager : MonoBehaviour
             SelectXandY();
             if (_selectedX >= 0 && _selectedY >= 0)
             {
-                if (!hasMoved)
+                if (!hasMoved) //after AI this is always true
                 {
                     if (_selectedPiece == null)
                     {
@@ -54,33 +71,66 @@ public class SelectionManager : MonoBehaviour
                 {
                     AttackEnemy(_selectedX, _selectedY);
                 }
-        }
+            }
         }
     }
 
     private void AttackEnemy(int x, int y)
     {
-
-        if (BoardManager.instance.allowedAttacks[x,y])
+        //jumpship
+        //Not cool, TODO think for better approach if you have time
+        if (_currentSelection as JumpShip)
         {
-            GameObject bulletGameObject = (GameObject)Instantiate(buletPrefab,
-                                                        BoardManager.instance.GetCenterNode(_currentSelection.CurrentX, _currentSelection.CurrentY), 
-                                                        Quaternion.identity);
-            Bullet bullet = bulletGameObject.GetComponent<Bullet>();
-            if (bullet != null)
+            if (!_currentSelection.hasAttacked)
             {
-                bullet.AtkTarget(BoardManager.instance.BasePieces[x, y], BoardManager.instance.BasePieces[_currentSelection.CurrentX, _currentSelection.CurrentY].Attack);
+                var rows = BoardManager.instance.GetRows();
+                var cols = BoardManager.instance.GetCols();
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        if ((BoardManager.instance.allowedAttacks[i, j]))
+                        {
+                            var enemyPiece = BoardManager.instance.BasePieces[i, j];
+                            if (enemyPiece != null)
+                            {
+                                InitBullet(i, j);
+                            }
+                        }
+                    }
+                }
+                _currentSelection.hasAttacked = true;
+                PossibleMovesManager.instance.HideHighlights();
+                _selectedPiece = null;
+                hasMoved = false;
             }
-
-            PossibleMovesManager.instance.HideHighlights();
-            hasMoved = false;
-            _selectedPiece = null;
         }
         else
         {
-            print("Attack the suggested zones. If there are no such zones, no more available moves for this turn! Suggested end of turn.");
-            //_selectedPiece = null;
-            //PossibleMovesManager.instance.HideHighlights();
+            if (BoardManager.instance.allowedAttacks[x, y])
+            {
+                InitBullet(x, y);
+                PossibleMovesManager.instance.HideHighlights();
+
+                _selectedPiece = null;
+                hasMoved = false;
+            }
+            else
+            {
+                print("Attack the suggested zones. If there are no such zones, no more available moves for this turn! Suggested end of turn.");
+            }
+        }
+    }
+
+    private void InitBullet(int i, int j)
+    {
+        GameObject bulletGameObject = (GameObject)Instantiate(buletPrefab,
+                                        BoardManager.instance.GetCenterNode(_currentSelection.CurrentX, _currentSelection.CurrentY),
+                                        Quaternion.identity);
+        Bullet bullet = bulletGameObject.GetComponent<Bullet>();
+        if (bullet != null)
+        {
+            bullet.AtkTarget(BoardManager.instance.BasePieces[i, j], BoardManager.instance.BasePieces[_currentSelection.CurrentX, _currentSelection.CurrentY].Attack);
         }
     }
 
@@ -97,6 +147,7 @@ public class SelectionManager : MonoBehaviour
             PossibleMovesManager.instance.HideHighlights();
             _selectedPiece.hasBeenMoved = true;
             hasMoved = true;
+
         }
         else
         {
@@ -108,7 +159,6 @@ public class SelectionManager : MonoBehaviour
         {
             BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[x, y].IsPossibleAttack();
             PossibleMovesManager.instance.HighlightPossibleAttack(BoardManager.instance.allowedAttacks);
-            _selectedPiece.hasBeenMoved = true;
         }
         else
         {
@@ -122,7 +172,7 @@ public class SelectionManager : MonoBehaviour
     private void SelectPiece(int x, int y)
     {
         if (BoardManager.instance.BasePieces[x, y] == null || 
-            BoardManager.instance.BasePieces[x, y].isPlayer != BoardManager.instance.isPlayerTurn)
+            BoardManager.instance.BasePieces[x, y].isPlayer != GameManager.instance.isPlayerTurn)
         {
             return;
         }
@@ -149,16 +199,12 @@ public class SelectionManager : MonoBehaviour
         Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
         var isHit = Physics.Raycast(ray, out RaycastHit hit, hitMaxDistance, LayerMask.GetMask("Node"));
 
-
         if (isHit)
         {
             var selectionX = Math.Floor(hit.point.x);
             _selectedX = (int)selectionX;
             var selectionY = Math.Floor(hit.point.z);
             _selectedY = (int)selectionY;
-
-            Debug.Log($"Selection - x: {_selectedX}, y:{_selectedY}");
-            Debug.Log($"HitPoint - x: {hit.point.x}, y:{hit.point.z}");
         }
         else
         {

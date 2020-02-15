@@ -2,15 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//TODO atk everybody around
 public class JumpShip : BasePiece
 {
-    public HealthBar healthBar;
+    public GameObject healthBar;
+    private HealthBar _healthbar;
 
     private int _health = 2;
     private int _atk = 2;
 
+    private int _atkRange = 2;
     private void Start()
     {
+        _healthbar = GetComponentInChildren<HealthBar>();
+        _healthbar.SetMaxHealth(_health);
+
         SetHealth(_health);
         SetAttack(_atk);
     }
@@ -21,15 +27,14 @@ public class JumpShip : BasePiece
         BasePiece piecePosition;
 
         //Attack Forward
-        for (int l = 1; l <= 4; l++)
+        for (int l = 1; l <= _atkRange; l++)
         {
-            if (CurrentY != 7 && l + CurrentY <= 7)
+            if (CurrentY != 7 && CurrentY + l <= 7)
             {
                 piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + l];
                 if (piecePosition != null && piecePosition.isPlayer != isPlayer)
                 {
                     isPossibleAttack[CurrentX, CurrentY + l] = true;
-                    break;
                 }
                 if (piecePosition != null && piecePosition.isPlayer == isPlayer)
                 {
@@ -39,7 +44,7 @@ public class JumpShip : BasePiece
         }
 
         //Attack Back
-        for (int l = 1; l <= 4; l++)
+        for (int l = 1; l <= _atkRange; l++)
         {
             if (CurrentY != 0 && CurrentY - l >= 0)
             {
@@ -48,7 +53,6 @@ public class JumpShip : BasePiece
                 if (piecePosition != null && piecePosition.isPlayer != isPlayer)
                 {
                     isPossibleAttack[CurrentX, CurrentY - l] = true;
-                    break;
                 }
                 if (piecePosition != null && piecePosition.isPlayer == isPlayer)
                 {
@@ -58,7 +62,7 @@ public class JumpShip : BasePiece
         }
 
         //Attack Left
-        for (int l = 1; l <= 4; l++)
+        for (int l = 1; l <= _atkRange; l++)
         {
             if (CurrentX != 0 && CurrentX - l >= 0)
             {
@@ -66,7 +70,6 @@ public class JumpShip : BasePiece
                 if (piecePosition != null && piecePosition.isPlayer != isPlayer)
                 {
                     isPossibleAttack[CurrentX - l, CurrentY] = true;
-                    break;
                 }
                 if (piecePosition != null && piecePosition.isPlayer == isPlayer)
                 {
@@ -76,7 +79,7 @@ public class JumpShip : BasePiece
         }
 
         //Attack Right
-        for (int l = 1; l <= 4; l++)
+        for (int l = 1; l <= _atkRange; l++)
         {
             if (CurrentX != 7 && l + CurrentX <= 7)
             {
@@ -84,7 +87,6 @@ public class JumpShip : BasePiece
                 if (piecePosition != null && piecePosition.isPlayer != isPlayer)
                 {
                     isPossibleAttack[CurrentX + l, CurrentY] = true;
-                    break;
                 }
                 if (piecePosition != null && piecePosition.isPlayer == isPlayer)
                 {
@@ -95,8 +97,6 @@ public class JumpShip : BasePiece
 
         return isPossibleAttack;
     }
-
-
 
     public override bool[,] IsPossibleMove()
     {
@@ -142,7 +142,7 @@ public class JumpShip : BasePiece
     public override void TakeDmg(int damage)
     {
         _health -= damage;
-        healthBar.SetHealth(_health);
+        _healthbar.SetHealth(_health);
 
         if (_health <= 0)
         {

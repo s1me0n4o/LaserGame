@@ -47,8 +47,9 @@ public class PossibleMovesManager : MonoBehaviour
         }
     }
 
-    public void HighlightPossibleAttack(bool[,] attacks)
+    public bool HighlightPossibleAttack(bool[,] attacks)
     {
+        bool result = false;
         var rows = BoardManager.instance.GetRows();
         var cols = BoardManager.instance.GetCols();
         for (int i = 0; i < rows; i++)
@@ -60,9 +61,11 @@ public class PossibleMovesManager : MonoBehaviour
                     GameObject highlitedObject = GetHighlitedObject(2);
                     highlitedObject.SetActive(true);
                     highlitedObject.transform.position = new Vector3(i + offsetPivotPoint, 0.06f, j + offsetPivotPoint);
+                    result = true;
                 }
             }
         }
+        return result;
     }
 
     public void HideHighlights()
