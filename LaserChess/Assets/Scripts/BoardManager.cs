@@ -108,41 +108,31 @@ public class BoardManager : MonoBehaviour
             SpownSinglePiece(i, 1, 2);
 
             //Spown AI Pieces
+            // indexes per pieces: 3-CU, 4-DN, 5-Drone
             //Row 8
             if (i == 4 || i == 3)
             {
                 SpownSinglePiece(i, 7, 3);
             }
-            else if (i == 5 || i == 2)
+            else //if (i == 5 || i == 2)
             {
                 SpownSinglePiece(i, 7, 4);
             }
-            else
-            {
-                SpownSinglePiece(i, 7, 5);
-            }
 
             //Row 7
-            if (i == 5 || i == 2 || i == 4 || i == 3)
-            {
-                SpownSinglePiece(i, 6, 4);
-            }
-            else
+            if (i == 1 || i == 6)
             {
                 SpownSinglePiece(i, 6, 5);
             }
-
-            //Row 5
-            if (i == 0 || i == 7)
-            {
-                SpownSinglePiece(i, 5, 4);
-            }
             else
             {
-                SpownSinglePiece(i, 5, 5);
+                SpownSinglePiece(i, 6, 4);
             }
 
-            //Row 4
+            //Row 6
+            SpownSinglePiece(i, 5, 5);
+
+            //Row 5
             SpownSinglePiece(i, 4, 5);
         }
 

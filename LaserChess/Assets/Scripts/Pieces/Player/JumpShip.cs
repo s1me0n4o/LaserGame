@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//TODO atk everybody around
 public class JumpShip : BasePiece
 {
     public GameObject healthBar;

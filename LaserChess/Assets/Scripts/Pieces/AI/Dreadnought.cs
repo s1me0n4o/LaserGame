@@ -37,22 +37,22 @@ public class Dreadnought : BasePiece
         BasePiece piecePosition;
 
         //Move Forward
-        if (CurrentY != 7)
-        {
-            piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + 1];
-            if (piecePosition == null)
-            {
-                isPossibleToMove[CurrentX, CurrentY + 1] = true;
-            }
-        }
-
-        //Move Back
         if (CurrentY != 0)
         {
             piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY - 1];
             if (piecePosition == null)
             {
                 isPossibleToMove[CurrentX, CurrentY - 1] = true;
+            }
+        }
+
+        //Move Back
+        if (CurrentY != 7)
+        {
+            piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + 1];
+            if (piecePosition == null)
+            {
+                isPossibleToMove[CurrentX, CurrentY + 1] = true;
             }
         }
 
@@ -124,22 +124,22 @@ public class Dreadnought : BasePiece
         BasePiece piecePosition;
 
         //Attack Forward
-        if (CurrentY != 7)
-        {
-            piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + 1];
-            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
-            {
-                isPossibleAttack[CurrentX, CurrentY + 1] = true;
-            }
-        }
-
-        //Attack Back
         if (CurrentY != 0)
         {
             piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY - 1];
             if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[CurrentX, CurrentY - 1] = true;
+            }
+        }
+
+        //Attack Back
+        if (CurrentY != 7)
+        {
+            piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + 1];
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
+            {
+                isPossibleAttack[CurrentX, CurrentY + 1] = true;
             }
         }
 
@@ -163,41 +163,41 @@ public class Dreadnought : BasePiece
             }
         }
 
-        //Move Top Left Diagonal
+        //Attack Top Left Diagonal
         if (CurrentX != 0 && CurrentY != 7)
         {
             piecePosition = BoardManager.instance.BasePieces[CurrentX - 1, CurrentY + 1];
-            if (piecePosition == null)
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[CurrentX - 1, CurrentY + 1] = true;
             }
         }
 
-        //Move Top Right Diagonal
+        //Attack Top Right Diagonal
         if (CurrentX != 7 && CurrentY != 7)
         {
             piecePosition = BoardManager.instance.BasePieces[CurrentX + 1, CurrentY + 1];
-            if (piecePosition == null)
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[CurrentX + 1, CurrentY + 1] = true;
             }
         }
 
-        //Move Bottom Right Diagonal
+        //Attack Bottom Right Diagonal
         if (CurrentX != 7 && CurrentY != 0)
         {
             piecePosition = BoardManager.instance.BasePieces[CurrentX + 1, CurrentY - 1];
-            if (piecePosition == null)
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[CurrentX + 1, CurrentY - 1] = true;
             }
         }
 
-        //Move Bottom Left Diagonal
+        //Attack Bottom Left Diagonal
         if (CurrentX != 0 && CurrentY != 0)
         {
             piecePosition = BoardManager.instance.BasePieces[CurrentX - 1, CurrentY - 1];
-            if (piecePosition == null)
+            if (piecePosition != null && piecePosition.isPlayer != isPlayer)
             {
                 isPossibleAttack[CurrentX - 1, CurrentY - 1] = true;
             }

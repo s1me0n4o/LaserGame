@@ -1,117 +1,313 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Pieces.Enums;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AI : MonoBehaviour
 {
     public GameObject buletPrefab;
+    private List<BasePiece> _movedDronesCount;
+    private State _state;
+
+    private List<BasePiece> allDrones;
+    private float _timeToWait = 1f;
+    private int _moveCounter;
+    private int _rows;
+    private int _cols;
+
+    public State State
+    {
+        get
+        {
+            return _state;
+        }
+        set
+        {
+            //ExitState();
+            _state = value;
+            EnterState(_state);
+        }
+    }
+    private void Start()
+    {
+        _rows = BoardManager.instance.GetRows();
+        _cols = BoardManager.instance.GetCols();
+
+        _movedDronesCount = new List<BasePiece>();
+        _moveCounter = 0;
+    }
 
     private void Update()
     {
+        if (!BoardManager.instance.isBuildFinishied)
+        {
+            return;
+        }
+
         if (!GameManager.instance.isPlayerTurn)
         {
+            State = State.Drones;
 
-            var allAIPieces = new List<BasePiece>();
-            var allDrones = new List<BasePiece>();
-            var allDreadnought = new List<BasePiece>();
-            var allCU = new List<BasePiece>();
-            var rows = BoardManager.instance.GetRows();
-            var cols = BoardManager.instance.GetCols();
 
-            //get all alive AI pieces
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
+
+            //EnterState(_state, 8, 8);
+        }
+}
+
+    //private void Update()
+    //{
+    //    if (!GameManager.instance.isPlayerTurn)
+    //    {
+
+    //        //get all alive AI pieces
+    //        GetAllAliveAIPieces(allAIPieces, allDrones, allDreadnought, allCU, rows, cols);
+
+    //        //Drones
+    //        //var randomNumb = UnityEngine.Random.Range(0, allDrones.Count);
+
+    //        //var piece = allDrones[randomNumb];
+
+    //        //TODO this could be level difficulty based
+    //        foreach (var piece in allDrones)
+    //        {
+    //            DroneBehaviour(rows, cols, piece);
+    //        }
+
+    //        //if all drones are moved
+    //        foreach (var drone in allDrones)
+    //        {
+    //            if (drone.hasBeenMoved)
+    //            {
+    //                _movedDronesCount.Add(drone);
+    //            }
+    //        }
+
+    //        //move Dreadnoughts
+    //        if (_movedDronesCount.Count == allDrones.Count)
+    //        {
+    //            foreach (var dreadnought in allDreadnought)
+    //            {
+    //                DreadnoughtBehaviour(rows, cols, dreadnought);
+    //            }
+    //        }
+
+
+
+
+
+
+    //        //drones moves first -> move and atk if possible - if not end of turn
+
+    //        //when all drones are moved move dreadnoughts
+    //        //move 1 space to the nearest target and atk if possible - if not end of turn
+
+    //        //CU moves when all DN have moved
+    //    }
+
+    //}
+
+
+
+    private void EnterState(State stateEntered)
+    {
+        var allAIPieces = new List<BasePiece>();
+        //var allDrones = new List<BasePiece>();
+        //var allDreadnought = new List<BasePiece>();
+        //var allCU = new List<BasePiece>();
+
+        switch (stateEntered)
+        {
+            case State.Drones:
+
+                var allDrones = GetAllAliveAIDrones(allAIPieces);
+                StartCoroutine(DroneBehaviour(allDrones));
+
+                if (_moveCounter == allDrones.Count)
                 {
-                    if (BoardManager.instance.BasePieces[i,j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
+                    ExitState();
+                    State = State.DN;
+                }
+
+                break;
+            case State.DN:
+                var allDreadnought = GetAllAliveAIDreadnought(allAIPieces);
+                StartCoroutine(DreadnoughtBehaviour(allDreadnought));
+
+                break;
+            case State.CU:
+                break;
+            default:
+                GameManager.instance.EndTurn();
+
+                break;
+        }
+    }
+
+    private void ExitState()
+    {
+        StopAllCoroutines();
+    }
+
+    private List<BasePiece> GetAllAliveAIDrones(List<BasePiece> allAIPieces)
+    {
+        List<BasePiece> allDrones = new List<BasePiece>();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+            {
+                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
+                {
+                    if (BoardManager.instance.BasePieces[i, j] as Drone)
                     {
-                        if (BoardManager.instance.BasePieces[i, j] as Drone)
-                        {
-                            allDrones.Add(BoardManager.instance.BasePieces[i, j]);
-                        }
+                        allDrones.Add(BoardManager.instance.BasePieces[i, j]);
+                    }
 
-                        if (BoardManager.instance.BasePieces[i, j] as Dreadnought)
-                        {
-                            allDreadnought.Add(BoardManager.instance.BasePieces[i, j]);
-                        }
+                    allAIPieces.Add(BoardManager.instance.BasePieces[i, j]);
+                }
+            }
+        }
+        return allDrones;
+    }
 
-                        if (BoardManager.instance.BasePieces[i, j] as ComandUnit)
+    private List<BasePiece> GetAllAliveAIDreadnought(List<BasePiece> allAIPieces)
+    {
+        List<BasePiece> allDreadnought = new List<BasePiece>();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+            {
+                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
+                {
+                    if (BoardManager.instance.BasePieces[i, j] as Dreadnought)
+                    {
+                        allDreadnought.Add(BoardManager.instance.BasePieces[i, j]);
+                    }
+
+                    allAIPieces.Add(BoardManager.instance.BasePieces[i, j]);
+                }
+            }
+        }
+        return allDreadnought;
+    }
+
+    private List<BasePiece> GetAllAliveAIComandUnits(List<BasePiece> allAIPieces)
+    {
+        List<BasePiece> allCU = new List<BasePiece>();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+            {
+                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
+                {
+
+                    if (BoardManager.instance.BasePieces[i, j] as ComandUnit)
+                    {
+                        allCU.Add(BoardManager.instance.BasePieces[i, j]);
+                    }
+                    allAIPieces.Add(BoardManager.instance.BasePieces[i, j]);
+                }
+            }
+        }
+        return allCU;
+    }
+
+
+    private IEnumerator DreadnoughtBehaviour(List<BasePiece> dreadnoughts)
+    {
+        _moveCounter = 0;
+        foreach (var dreadnought in dreadnoughts)
+        {
+            if (!dreadnought.hasBeenMoved)
+            {
+                BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[dreadnought.CurrentX, dreadnought.CurrentY].IsPossibleMove();
+                for (int ii = 0; ii < _rows; ii++)
+                {
+                    for (int jj = 0; jj < _cols; jj++)
+                    {
+                        //if there is available move
+                        if (BoardManager.instance.allowedMoves[ii, jj])
                         {
-                            allCU.Add(BoardManager.instance.BasePieces[i, j]);
+                            //moving
+                            MovePiece(dreadnought, ii, jj);
+                            _moveCounter++;
+
+                            //attacking
+                            if (dreadnought.hasBeenMoved)
+                            {
+                                BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[dreadnought.CurrentX, dreadnought.CurrentY].IsPossibleAttack();
+
+                                //TODO change that if have time.
+                                int x, y;
+                                PickPossibleAttack(out x, out y);
+                              
+                                if (x != -1 && y != -1)
+                                {
+                                    AttackPiece(dreadnought, x, y);
+                                    Debug.Log("Attacked");
+                                }
+                            }
                         }
-                        allAIPieces.Add(BoardManager.instance.BasePieces[i, j]);
                     }
                 }
             }
-
-            //Drones
-            //var randomNumb = UnityEngine.Random.Range(0, allDrones.Count);
-
-            //var piece = allDrones[randomNumb];
-
-            //TODO this could be level difficulty based
-            foreach (var piece in allDrones)
-            {
-                DroneBehaviour(rows, cols, piece);
-
-            }
-            GameManager.instance.EndTurn();
-
-
-
-
-
-            //drones moves first -> move and atk if possible - if not end of turn
-
-            //when all drones are moved move dreadnoughts
-            //move 1 space to the nearest target and atk if possible - if not end of turn
-
-            //CU moves when all DN have moved
+            yield return new WaitForSeconds(_timeToWait);
         }
-        
     }
 
-    private void DroneBehaviour(int rows, int cols, BasePiece piece)
+    private IEnumerator DroneBehaviour(List<BasePiece> allDrones)
     {
-        if (!piece.hasBeenMoved)
+        foreach (var piece in allDrones)
         {
-            BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY].IsPossibleMove();
-
-            for (int ii = 0; ii < rows; ii++)
+            if (!piece.hasBeenMoved)
             {
-                for (int jj = 0; jj < cols; jj++)
+                BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY].IsPossibleMove();
+                for (int ii = 0; ii < _rows; ii++)
                 {
-                    //if there is available move
-                    if (BoardManager.instance.allowedMoves[ii, jj])
+                    for (int jj = 0; jj < _cols; jj++)
                     {
-                        //moving
-                        MovePiece(piece, ii, jj);
-
-                        //attacking
-                        if (piece.hasBeenMoved)
+                        //if there is available move
+                        if (BoardManager.instance.allowedMoves[ii, jj])
                         {
-                            BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY].IsPossibleAttack();
-                            int x = -1, y = -1;
-                            for (int k = 0; k < rows; k++)
+                            //moving
+                            MovePiece(piece, ii, jj);
+                            _moveCounter++;
+
+                            //attacking
+                            if (piece.hasBeenMoved)
                             {
-                                for (int t = 0; t < cols; t++)
+                                BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY].IsPossibleAttack();
+                                
+                                //TODO change that if have time.
+                                int x, y;
+                                PickPossibleAttack(out x, out y);
+
+                                if (x != -1 && y != -1)
                                 {
-                                    if (BoardManager.instance.allowedAttacks[k, t])
-                                    {
-                                        x = k;
-                                        y = t;
-                                        break;
-                                    }
+                                    AttackPiece(piece, x, y);
                                 }
-                            }
-
-                            if (x != -1 && y != -1)
-                            {
-                                AttackPiece(piece, x, y);
-
                             }
                         }
                     }
+                }
+            }
+            yield return new WaitForSeconds(_timeToWait);
+        }
+    }
+
+    private void PickPossibleAttack(out int x, out int y)
+    {
+        x = -1;
+        y = -1;
+        for (int k = 0; k < _rows; k++)
+        {
+            for (int t = 0; t < _cols; t++)
+            {
+                if (BoardManager.instance.allowedAttacks[k, t])
+                {
+                    x = k;
+                    y = t;
+                    break;
                 }
             }
         }

@@ -75,6 +75,7 @@
     <Compile Include="Assets\Scripts\Pieces\AI\MiniMaxAlgorithm.cs" />
     <Compile Include="Assets\Scripts\Pieces\BasePiece.cs" />
     <Compile Include="Assets\Scripts\Pieces\Bullet.cs" />
+    <Compile Include="Assets\Scripts\Pieces\Enums\State.cs" />
     <Compile Include="Assets\Scripts\Pieces\IBasePiece.cs" />
     <Compile Include="Assets\Scripts\Pieces\Player\Grunt.cs" />
     <Compile Include="Assets\Scripts\Pieces\Player\JumpShip.cs" />
