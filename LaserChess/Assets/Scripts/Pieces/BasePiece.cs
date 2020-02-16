@@ -52,7 +52,7 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
         BoardManager.instance.piecesAlive.Remove(gameObject);
     }
 
-    public virtual bool[,] IsPossibleAttack()
+    public virtual bool[,] IsPossibleAttack(int x, int y)
     {
         return new bool[8, 8];
     }

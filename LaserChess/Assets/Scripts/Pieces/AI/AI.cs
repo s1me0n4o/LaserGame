@@ -110,14 +110,30 @@ public class AI : MonoBehaviour
         StopAllCoroutines();
     }
 
-    //TODO fix the states and check if the below works
     private IEnumerator CommandUnitsBehaviour(List<BasePiece> allCommandUnits)
     {
         foreach (var cu in allCommandUnits)
         {
+            var cuTempYTop = -1;
+            var cuTempYBottom = -1;
             //overriding tempy
-            var cuTempYTop = cu.CurrentY + 1;
-            var cuTempYBottom = cu.CurrentY - 1;
+            if (cu.CurrentY < 7)
+            {   
+                cuTempYTop = cu.CurrentY + 1;
+            }
+            else 
+            {
+                cuTempYTop = cu.CurrentY; 
+            }
+            if (cu.CurrentY > 0)
+            {
+                cuTempYBottom = cu.CurrentY - 1;
+            }
+            else
+            {
+                cuTempYBottom = cu.CurrentY;
+            }
+
 
             BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[cu.CurrentX, cu.CurrentY].IsPossibleMove();
             for (int ii = 0; ii < _rows; ii++)
@@ -143,7 +159,7 @@ public class AI : MonoBehaviour
                                         //TODO maybe add props futureMoveX, futureMoveZ
                                         pPiece.TempX = i;
                                         pPiece.TempY = j;
-                                        var possibleAttacks = BoardManager.instance.BasePieces[pPiece.TempX, pPiece.TempY].IsPossibleAttack();
+                                        var possibleAttacks = pPiece.IsPossibleAttack(pPiece.TempX, pPiece.TempY);
 
                                         for (int x = 0; x < _rows; x++)
                                         {
@@ -153,15 +169,15 @@ public class AI : MonoBehaviour
                                                 if (possibleAttacks[x,y])
                                                 {
                                                     //TODO check if the coordinates match cu[x,y]
-                                                    if (possibleAttacks[x,y] == BoardManager.instance.BasePieces[cu.CurrentX, cu.CurrentY])
+                                                    if (x == cu.CurrentX && y == cuTempYTop)
                                                     {
-                                                        if (possibleAttacks[x, y] == BoardManager.instance.BasePieces[cu.CurrentX, cuTempYTop])
+                                                        if (x == cu.CurrentX && y == cuTempYTop)
                                                         {
                                                             //go bot (y-1)
                                                             MovePiece(cu, cu.CurrentX, cuTempYBottom);
                                                             break;
                                                         }
-                                                        else if (possibleAttacks[x, y] == BoardManager.instance.BasePieces[cu.CurrentX, cuTempYBottom])
+                                                        else if (x == cu.CurrentX && y == cuTempYBottom)
                                                         {
                                                             //go top (y+1)
                                                             //moving
@@ -221,7 +237,8 @@ public class AI : MonoBehaviour
                             //attacking
                             if (dreadnought.hasBeenMoved && !dreadnought.hasAttacked)
                             {
-                                BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[dreadnought.CurrentX, dreadnought.CurrentY].IsPossibleAttack();
+                                BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[dreadnought.CurrentX, dreadnought.CurrentY]
+                                                                                                    .IsPossibleAttack(dreadnought.CurrentX, dreadnought.CurrentY);
 
                                 //attack all surroundings
                                 for (int i = 0; i < _rows; i++)
@@ -287,7 +304,7 @@ public class AI : MonoBehaviour
                             //attacking
                             if (piece.hasBeenMoved)
                             {
-                                BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY].IsPossibleAttack();
+                                BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY].IsPossibleAttack(piece.CurrentX, piece.CurrentY);
                                 
                                 //TODO change that if have time.
                                 int x, y;

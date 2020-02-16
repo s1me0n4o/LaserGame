@@ -20,7 +20,7 @@ public class JumpShip : BasePiece
         SetAttack(_atk);
     }
 
-    public override bool[,] IsPossibleAttack()
+    public override bool[,] IsPossibleAttack(int CurrentX, int CurrentY)
     {
         var isPossibleAttack = new bool[8, 8];
         BasePiece piecePosition;

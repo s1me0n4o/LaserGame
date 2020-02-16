@@ -170,7 +170,7 @@ public class SelectionManager : MonoBehaviour
 
         if (hasMoved)
         {
-            BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[x, y].IsPossibleAttack();
+            BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[x, y].IsPossibleAttack(x,y);
             PossibleMovesManager.instance.HighlightPossibleAttack(BoardManager.instance.allowedAttacks);
         }
         else
