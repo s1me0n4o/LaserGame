@@ -115,10 +115,9 @@ public class AI : MonoBehaviour
     {
         foreach (var cu in allCommandUnits)
         {
-            var futureTopCu = cu;
-            futureTopCu.CurrentY = cu.CurrentY + 1;
-            var futureBotCu = cu;
-            futureBotCu.CurrentY = cu.CurrentY - 1;
+            //overriding tempy
+            var cuTempYTop = cu.CurrentY + 1;
+            var cuTempYBottom = cu.CurrentY - 1;
 
             BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[cu.CurrentX, cu.CurrentY].IsPossibleMove();
             for (int ii = 0; ii < _rows; ii++)
@@ -144,7 +143,7 @@ public class AI : MonoBehaviour
                                         //TODO maybe add props futureMoveX, futureMoveZ
                                         pPiece.TempX = i;
                                         pPiece.TempY = j;
-                                        var possibleAttacks = pPiece.IsPossibleAttack();
+                                        var possibleAttacks = BoardManager.instance.BasePieces[pPiece.TempX, pPiece.TempY].IsPossibleAttack();
 
                                         for (int x = 0; x < _rows; x++)
                                         {
@@ -154,19 +153,19 @@ public class AI : MonoBehaviour
                                                 if (possibleAttacks[x,y])
                                                 {
                                                     //TODO check if the coordinates match cu[x,y]
-                                                    if (possibleAttacks[x,y] == cu)
+                                                    if (possibleAttacks[x,y] == BoardManager.instance.BasePieces[cu.CurrentX, cu.CurrentY])
                                                     {
-                                                        if (possibleAttacks[x, y] == futureTopCu)
+                                                        if (possibleAttacks[x, y] == BoardManager.instance.BasePieces[cu.CurrentX, cuTempYTop])
                                                         {
                                                             //go bot (y-1)
-                                                            MovePiece(cu, futureTopCu.CurrentX, futureTopCu.CurrentY);
+                                                            MovePiece(cu, cu.CurrentX, cuTempYBottom);
                                                             break;
                                                         }
-                                                        else if (possibleAttacks[x, y] == futureBotCu)
+                                                        else if (possibleAttacks[x, y] == BoardManager.instance.BasePieces[cu.CurrentX, cuTempYBottom])
                                                         {
                                                             //go top (y+1)
                                                             //moving
-                                                            MovePiece(cu, futureTopCu.CurrentX, futureTopCu.CurrentY);
+                                                            MovePiece(cu, cu.CurrentX, cuTempYTop);
                                                             break;
                                                         }
                                                     }
@@ -202,7 +201,7 @@ public class AI : MonoBehaviour
                 allPlayerUnits.UpdatePositions();
                 var nearestEnenmy = allPlayerUnits.FindClosest(dreadnought.transform.position);
 
-                Debug.DrawLine(new Vector3(dreadnought.transform.position.x, 0.5f, dreadnought.transform.position.z), new Vector3(nearestEnenmy.transform.position.x, 0.5f, nearestEnenmy.transform.position.z), Color.red, 10);
+                Debug.DrawLine(new Vector3(dreadnought.transform.position.x, 0.5f, dreadnought.transform.position.z), new Vector3(nearestEnenmy.transform.position.x, 0.5f, nearestEnenmy.transform.position.z), Color.red, 5);
 
                 for (int ii = 0; ii < _rows; ii++)
                 {
@@ -253,7 +252,7 @@ public class AI : MonoBehaviour
         }
         else
         {
-            if (_moveCounterDreadnought == dreadnoughts.Count)
+            if (_moveCounterDreadnought >= dreadnoughts.Count)
             {
                 _allDreadnoughtsHaveBeenMoved = true;
                 OnStateFinished(State.CU);
@@ -263,17 +262,6 @@ public class AI : MonoBehaviour
                 OnStateFinished(State.EndTurn);
             }
         }
-    }
-
-    private void CalculateOptimalPath(BasePiece dreadnought, BasePiece nearestEnenmy, out int tempX, out int tempY)
-    {
-        //getting values between -1 and 1 based on enemy position
-        var dirX = Mathf.Max(Mathf.Min(nearestEnenmy.CurrentX - dreadnought.CurrentX, 1), -1);
-        var dirY = Mathf.Max(Mathf.Min(nearestEnenmy.CurrentY - dreadnought.CurrentY, 1), -1);
-
-        //calculating the best future point
-        tempX = dreadnought.CurrentX + dirX;
-        tempY = dreadnought.CurrentY + dirY;
     }
 
     private IEnumerator DroneBehaviour(List<BasePiece> allDrones)
@@ -322,7 +310,7 @@ public class AI : MonoBehaviour
         }
         else
         {
-            if (_moveCounterDrones == allDrones.Count)
+            if (_moveCounterDrones >= allDrones.Count)
             {
                 _allDronesHaveBeenMoved = true;
                 OnStateFinished(State.DN);
@@ -460,11 +448,14 @@ public class AI : MonoBehaviour
 
     }
 
-    private int CalculateCost(BasePiece a, BasePiece b)
+    private void CalculateOptimalPath(BasePiece dreadnought, BasePiece nearestEnenmy, out int tempX, out int tempY)
     {
-        int distanceX = Mathf.Abs(a.CurrentX - b.CurrentX);
-        int distanceY = Mathf.Abs(a.CurrentY - b.CurrentY);
-        int remaining = Mathf.Abs(distanceX - distanceY);
-        return Move_diagonal_cost * Mathf.Min(distanceX, distanceY) + Move_straight_cost * remaining;
+        //getting values between -1 and 1 based on enemy position
+        var dirX = Mathf.Max(Mathf.Min(nearestEnenmy.CurrentX - dreadnought.CurrentX, 1), -1);
+        var dirY = Mathf.Max(Mathf.Min(nearestEnenmy.CurrentY - dreadnought.CurrentY, 1), -1);
+
+        //calculating the best future point
+        tempX = dreadnought.CurrentX + dirX;
+        tempY = dreadnought.CurrentY + dirY;
     }
 }
