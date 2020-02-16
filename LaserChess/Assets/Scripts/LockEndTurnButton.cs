@@ -11,10 +11,14 @@ public class LockEndTurnButton : MonoBehaviour
     {
         button = GetComponent<Button>();
     }
-
-    private void Update()
+    private void OnEnable()
     {
         GameManager.OnTurnChange += ChangeButtonStatus;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnTurnChange -= ChangeButtonStatus;
     }
 
     public void ChangeButtonStatus(bool isPlayer)

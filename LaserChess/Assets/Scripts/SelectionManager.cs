@@ -14,7 +14,6 @@ public class SelectionManager : MonoBehaviour
     private float hitMaxDistance = 25f;
     private BasePiece _selectedPiece;
     private BasePiece _currentSelection;
-    private bool _hasAttacked = false;
 
     void Start()
     {
@@ -24,6 +23,12 @@ public class SelectionManager : MonoBehaviour
 
     private void TrunHasChanged(bool isPlayerTurn)
     {
+        //TODO this could be a prob
+        if (GameManager.instance.isPlayerTurn)
+        {
+            return;
+        }
+
         hasMoved = false;
         PossibleMovesManager.instance.HideHighlights();
 
@@ -36,10 +41,18 @@ public class SelectionManager : MonoBehaviour
             }
         }
     }
+    private void OnEnable()
+    {
+        GameManager.OnTurnChange += TrunHasChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnTurnChange -= TrunHasChanged;
+    }
 
     void Update()
     {
-        GameManager.OnTurnChange += TrunHasChanged;
 
         if (!BoardManager.instance.isBuildFinishied)
         {
@@ -172,7 +185,8 @@ public class SelectionManager : MonoBehaviour
     private void SelectPiece(int x, int y)
     {
         if (BoardManager.instance.BasePieces[x, y] == null || 
-            BoardManager.instance.BasePieces[x, y].isPlayer != GameManager.instance.isPlayerTurn)
+            BoardManager.instance.BasePieces[x, y].isPlayer != GameManager.instance.isPlayerTurn ||
+            !GameManager.instance.isPlayerTurn)
         {
             return;
         }

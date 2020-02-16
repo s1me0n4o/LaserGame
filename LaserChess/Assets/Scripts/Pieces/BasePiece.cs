@@ -12,7 +12,8 @@ public abstract class BasePiece : MonoBehaviour, IBasePiece
 
     public int CurrentX { get; set; }
     public int CurrentY { get; set; }
-
+    public int TempX { get; set; }
+    public int TempY { get; set; }
     public int Health { get; set; }
     public int Attack { get; set; }
 

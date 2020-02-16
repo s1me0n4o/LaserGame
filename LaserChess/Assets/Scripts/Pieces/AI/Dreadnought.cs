@@ -118,7 +118,7 @@ public class Dreadnought : BasePiece
         return isPossibleToMove;
     }
 
-    //TODO change it as Knight
+
     public override bool[,] IsPossibleAttack()
     {
         var isPossibleAttack = new bool[8, 8];

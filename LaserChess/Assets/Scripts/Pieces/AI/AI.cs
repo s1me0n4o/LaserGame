@@ -1,21 +1,30 @@
-﻿using Assets.Scripts.Pieces.Enums;
+﻿using Assets.Scripts.External;
+using Assets.Scripts.Pieces.Enums;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AI : MonoBehaviour
 {
     public GameObject buletPrefab;
-    private List<BasePiece> _movedDronesCount;
     private State _state;
 
-    private List<BasePiece> allDrones;
+    public delegate void StateFinished(State state);
+    public static event StateFinished OnStateFinished;
+
     private float _timeToWait = 1f;
     private int _moveCounterDrones;
     private int _moveCounterDreadnought;
     private int _rows;
     private int _cols;
+    private bool _allDronesHaveBeenMoved;
+    private bool _allDreadnoughtsHaveBeenMoved;
+
+    private const int Move_straight_cost = 10;
+    private const int Move_diagonal_cost = 14;
 
     public State State
     {
@@ -35,14 +44,23 @@ public class AI : MonoBehaviour
         _rows = BoardManager.instance.GetRows();
         _cols = BoardManager.instance.GetCols();
 
-        _movedDronesCount = new List<BasePiece>();
         _moveCounterDrones = 0;
         _moveCounterDreadnought = 0;
     }
-
-    private void Update()
+    private void OnEnable()
     {
-        if (!BoardManager.instance.isBuildFinishied || GameManager.instance.isPlayerTurn)
+        GameManager.OnTurnChange += InitState;
+        OnStateFinished += ChangeState;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnTurnChange -= InitState;
+    }
+
+    private void InitState(bool isPlayerTurn)
+    {
+        if (GameManager.instance.isPlayerTurn)
         {
             return;
         }
@@ -50,105 +68,49 @@ public class AI : MonoBehaviour
         if (!GameManager.instance.isPlayerTurn)
         {
             State = State.Drones;
-
-            //EnterState(_state, 8, 8);
         }
     }
-
-    //private void Update()
-    //{
-    //    if (!GameManager.instance.isPlayerTurn)
-    //    {
-
-    //        //get all alive AI pieces
-    //        GetAllAliveAIPieces(allAIPieces, allDrones, allDreadnought, allCU, rows, cols);
-
-    //        //Drones
-    //        //var randomNumb = UnityEngine.Random.Range(0, allDrones.Count);
-
-    //        //var piece = allDrones[randomNumb];
-
-    //        //TODO this could be level difficulty based
-    //        foreach (var piece in allDrones)
-    //        {
-    //            DroneBehaviour(rows, cols, piece);
-    //        }
-
-    //        //if all drones are moved
-    //        foreach (var drone in allDrones)
-    //        {
-    //            if (drone.hasBeenMoved)
-    //            {
-    //                _movedDronesCount.Add(drone);
-    //            }
-    //        }
-
-    //        //move Dreadnoughts
-    //        if (_movedDronesCount.Count == allDrones.Count)
-    //        {
-    //            foreach (var dreadnought in allDreadnought)
-    //            {
-    //                DreadnoughtBehaviour(rows, cols, dreadnought);
-    //            }
-    //        }
-
-
-
-
-
-
-    //        //drones moves first -> move and atk if possible - if not end of turn
-
-    //        //when all drones are moved move dreadnoughts
-    //        //move 1 space to the nearest target and atk if possible - if not end of turn
-
-    //        //CU moves when all DN have moved
-    //    }
-
-    //}
-
-
+   
+    private void ChangeState(State state)
+    {
+        ExitState();
+        State = state;
+    }
 
     private void EnterState(State stateEntered)
     {
-        var allAIPieces = new List<BasePiece>();
-        //var allDrones = new List<BasePiece>();
-        //var allDreadnought = new List<BasePiece>();
-        //var allCU = new List<BasePiece>();
-
-        switch (stateEntered)
+        while (true)
         {
-            case State.Drones:
+            switch (stateEntered)
+            {
+                case State.Drones:
 
-                var allDrones = GetAllAliveAIDrones();
-                StartCoroutine(DroneBehaviour(allDrones));
+                    var allDrones = GetAllAliveAIDrones();
+                    StartCoroutine(DroneBehaviour(allDrones));
 
-                if (_moveCounterDrones == allDrones.Count)
-                {
-                    ExitState();
-                    State = State.DN;
-                }
+                    break;
+                case State.DN:
+                    var allDreadnought = GetAllAliveAIDreadnought();
+                    StartCoroutine(DreadnoughtBehaviour(allDreadnought));
 
-                break;
-            case State.DN:
-                var allDreadnought = GetAllAliveAIDreadnought();
-                StartCoroutine(DreadnoughtBehaviour(allDreadnought));
-
-                if (_moveCounterDreadnought == allDreadnought.Count)
-                {
-                    ExitState();
-                    State = State.CU;
-                }
-
-                break;
-            case State.CU:
-                var allCommandUnits = GetAllAliveAICommandUnits();
-                StartCoroutine(CommandUnitsBehaviour(allCommandUnits));
-                GameManager.instance.EndTurn();
-                break;
+                    break;
+                case State.CU:
+                    var allCommandUnits = GetAllAliveAICommandUnits();
+                    StartCoroutine(CommandUnitsBehaviour(allCommandUnits));
+                    break;
+                case State.EndTurn:
+                    GameManager.instance.EndTurn();
+                    break;
+            }
+            break;
         }
     }
+    private void ExitState()
+    {
+        StopAllCoroutines();
+    }
 
+    //TODO fix the states and check if the below works
     private IEnumerator CommandUnitsBehaviour(List<BasePiece> allCommandUnits)
     {
         foreach (var cu in allCommandUnits)
@@ -180,8 +142,8 @@ public class AI : MonoBehaviour
                                     if (possibleMoves[i,j])
                                     {
                                         //TODO maybe add props futureMoveX, futureMoveZ
-                                        pPiece.CurrentX = i;
-                                        pPiece.CurrentY = j;
+                                        pPiece.TempX = i;
+                                        pPiece.TempY = j;
                                         var possibleAttacks = pPiece.IsPossibleAttack();
 
                                         for (int x = 0; x < _rows; x++)
@@ -191,6 +153,7 @@ public class AI : MonoBehaviour
                                         //if there are potential attacks for the current pos
                                                 if (possibleAttacks[x,y])
                                                 {
+                                                    //TODO check if the coordinates match cu[x,y]
                                                     if (possibleAttacks[x,y] == cu)
                                                     {
                                                         if (possibleAttacks[x, y] == futureTopCu)
@@ -222,17 +185,11 @@ public class AI : MonoBehaviour
                     }
                 }
             }
+            yield return new WaitForSeconds(_timeToWait);
         }
-        yield return new WaitForSeconds(_timeToWait);
+        OnStateFinished(State.EndTurn);
     }
 
-
-    private void ExitState()
-    {
-        StopAllCoroutines();
-    }
-
-    //TODO change it to move to nearest target
     private IEnumerator DreadnoughtBehaviour(List<BasePiece> dreadnoughts)
     {
         foreach (var dreadnought in dreadnoughts)
@@ -240,6 +197,13 @@ public class AI : MonoBehaviour
             if (!dreadnought.hasBeenMoved)
             {
                 BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[dreadnought.CurrentX, dreadnought.CurrentY].IsPossibleMove();
+
+                var allPlayerUnits = GetAllPlayerAliveUnits();
+                allPlayerUnits.UpdatePositions();
+                var nearestEnenmy = allPlayerUnits.FindClosest(dreadnought.transform.position);
+
+                Debug.DrawLine(new Vector3(dreadnought.transform.position.x, 0.5f, dreadnought.transform.position.z), new Vector3(nearestEnenmy.transform.position.x, 0.5f, nearestEnenmy.transform.position.z), Color.red, 10);
+
                 for (int ii = 0; ii < _rows; ii++)
                 {
                     for (int jj = 0; jj < _cols; jj++)
@@ -247,24 +211,35 @@ public class AI : MonoBehaviour
                         //if there is available move
                         if (BoardManager.instance.allowedMoves[ii, jj])
                         {
+                            int tempX, tempY;
+                            CalculateOptimalPath(dreadnought, nearestEnenmy, out tempX, out tempY);
                             //moving
-                            MovePiece(dreadnought, ii, jj);
-                            _moveCounterDreadnought++;
+                            if (tempX == ii && tempY == jj && MovePiece(dreadnought, tempX, tempY))
+                            {
+                                _moveCounterDreadnought++;
+                            }
 
                             //attacking
-                            if (dreadnought.hasBeenMoved)
+                            if (dreadnought.hasBeenMoved && !dreadnought.hasAttacked)
                             {
                                 BoardManager.instance.allowedAttacks = BoardManager.instance.BasePieces[dreadnought.CurrentX, dreadnought.CurrentY].IsPossibleAttack();
 
-                                //TODO change that if have time.
-                                int x, y;
-                                PickPossibleAttack(out x, out y);
-                              
-                                if (x != -1 && y != -1)
+                                //attack all surroundings
+                                for (int i = 0; i < _rows; i++)
                                 {
-                                    AttackPiece(dreadnought, x, y);
-                                    Debug.Log("Attacked");
+                                    for (int j = 0; j < _cols; j++)
+                                    {
+                                        if ((BoardManager.instance.allowedAttacks[i, j]))
+                                        {
+                                            var enemyPiece = BoardManager.instance.BasePieces[i, j];
+                                            if (enemyPiece != null)
+                                            {
+                                                AttackPiece(dreadnought, i, j);
+                                            }
+                                        }
+                                    }
                                 }
+                                dreadnought.hasAttacked = true;
                             }
                         }
                     }
@@ -272,6 +247,33 @@ public class AI : MonoBehaviour
             }
             yield return new WaitForSeconds(_timeToWait);
         }
+        if (_allDreadnoughtsHaveBeenMoved)
+        {
+            OnStateFinished(State.CU);
+        }
+        else
+        {
+            if (_moveCounterDreadnought == dreadnoughts.Count)
+            {
+                _allDreadnoughtsHaveBeenMoved = true;
+                OnStateFinished(State.CU);
+            }
+            else
+            {
+                OnStateFinished(State.EndTurn);
+            }
+        }
+    }
+
+    private void CalculateOptimalPath(BasePiece dreadnought, BasePiece nearestEnenmy, out int tempX, out int tempY)
+    {
+        //getting values between -1 and 1 based on enemy position
+        var dirX = Mathf.Max(Mathf.Min(nearestEnenmy.CurrentX - dreadnought.CurrentX, 1), -1);
+        var dirY = Mathf.Max(Mathf.Min(nearestEnenmy.CurrentY - dreadnought.CurrentY, 1), -1);
+
+        //calculating the best future point
+        tempX = dreadnought.CurrentX + dirX;
+        tempY = dreadnought.CurrentY + dirY;
     }
 
     private IEnumerator DroneBehaviour(List<BasePiece> allDrones)
@@ -289,8 +291,10 @@ public class AI : MonoBehaviour
                         if (BoardManager.instance.allowedMoves[ii, jj])
                         {
                             //moving
-                            MovePiece(piece, ii, jj);
-                            _moveCounterDrones++;
+                            if (MovePiece(piece, ii, jj))
+                            {
+                                _moveCounterDrones++;
+                            }
 
                             //attacking
                             if (piece.hasBeenMoved)
@@ -311,6 +315,22 @@ public class AI : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(_timeToWait);
+        }
+        if (_allDronesHaveBeenMoved)
+        {
+            OnStateFinished(State.DN);
+        }
+        else
+        {
+            if (_moveCounterDrones == allDrones.Count)
+            {
+                _allDronesHaveBeenMoved = true;
+                OnStateFinished(State.DN);
+            }
+            else
+            {
+                OnStateFinished(State.EndTurn);
+            }
         }
     }
 
@@ -351,13 +371,18 @@ public class AI : MonoBehaviour
         }
     }
 
-    private void MovePiece(BasePiece piece, int x, int y)
+    private bool MovePiece(BasePiece piece, int x, int y)
     {
-        BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY] = null;
-        piece.transform.position = BoardManager.instance.GetCenterNode(x, y);
-        piece.SetPosition(x, y);
-        BoardManager.instance.BasePieces[x, y] = piece;
-        piece.hasBeenMoved = true;
+        if (!piece.hasBeenMoved)
+        {
+            BoardManager.instance.BasePieces[piece.CurrentX, piece.CurrentY] = null;
+            piece.transform.position = BoardManager.instance.GetCenterNode(x, y);
+            piece.SetPosition(x, y);
+            BoardManager.instance.BasePieces[x, y] = piece;
+            piece.hasBeenMoved = true;
+            return true;
+        }
+        return false;
     }
 
     private List<BasePiece> GetAllAliveAIDrones()
@@ -418,24 +443,28 @@ public class AI : MonoBehaviour
         return allCU;
     }
    
-    private List<BasePiece> GetAllPlayerAliveUnits()
+    private KDTree<BasePiece> GetAllPlayerAliveUnits()
     {
-        List<BasePiece> allPlayerPieces = new List<BasePiece>();
+        KDTree<BasePiece> allPlayerPieces = new KDTree<BasePiece>();
         for (int i = 0; i < _rows; i++)
         {
             for (int j = 0; j < _cols; j++)
             {
                 if (BoardManager.instance.BasePieces[i, j] != null && BoardManager.instance.BasePieces[i, j].isPlayer)
                 {
-
-                    if (BoardManager.instance.BasePieces[i, j] as ComandUnit)
-                    {
-                        allPlayerPieces.Add(BoardManager.instance.BasePieces[i, j]);
-                    }
+                    allPlayerPieces.Add(BoardManager.instance.BasePieces[i, j]);
                 }
             }
         }
         return allPlayerPieces;
 
+    }
+
+    private int CalculateCost(BasePiece a, BasePiece b)
+    {
+        int distanceX = Mathf.Abs(a.CurrentX - b.CurrentX);
+        int distanceY = Mathf.Abs(a.CurrentY - b.CurrentY);
+        int remaining = Mathf.Abs(distanceX - distanceY);
+        return Move_diagonal_cost * Mathf.Min(distanceX, distanceY) + Move_straight_cost * remaining;
     }
 }

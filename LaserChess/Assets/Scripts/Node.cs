@@ -42,7 +42,7 @@ public class Node : MonoBehaviour
             return;
         }
 
-        _renderer.material.color = Color.green;
+        _renderer.material.color = Color.blue;
     }
 
 }

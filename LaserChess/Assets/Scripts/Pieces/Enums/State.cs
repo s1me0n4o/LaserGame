@@ -10,6 +10,7 @@ namespace Assets.Scripts.Pieces.Enums
     {
         Drones,
         DN,
-        CU
+        CU,
+        EndTurn
     }
 }
