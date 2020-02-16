@@ -12,7 +12,8 @@ public class AI : MonoBehaviour
 
     private List<BasePiece> allDrones;
     private float _timeToWait = 1f;
-    private int _moveCounter;
+    private int _moveCounterDrones;
+    private int _moveCounterDreadnought;
     private int _rows;
     private int _cols;
 
@@ -35,12 +36,13 @@ public class AI : MonoBehaviour
         _cols = BoardManager.instance.GetCols();
 
         _movedDronesCount = new List<BasePiece>();
-        _moveCounter = 0;
+        _moveCounterDrones = 0;
+        _moveCounterDreadnought = 0;
     }
 
     private void Update()
     {
-        if (!BoardManager.instance.isBuildFinishied)
+        if (!BoardManager.instance.isBuildFinishied || GameManager.instance.isPlayerTurn)
         {
             return;
         }
@@ -49,11 +51,9 @@ public class AI : MonoBehaviour
         {
             State = State.Drones;
 
-
-
             //EnterState(_state, 8, 8);
         }
-}
+    }
 
     //private void Update()
     //{
@@ -120,10 +120,10 @@ public class AI : MonoBehaviour
         {
             case State.Drones:
 
-                var allDrones = GetAllAliveAIDrones(allAIPieces);
+                var allDrones = GetAllAliveAIDrones();
                 StartCoroutine(DroneBehaviour(allDrones));
 
-                if (_moveCounter == allDrones.Count)
+                if (_moveCounterDrones == allDrones.Count)
                 {
                     ExitState();
                     State = State.DN;
@@ -131,91 +131,110 @@ public class AI : MonoBehaviour
 
                 break;
             case State.DN:
-                var allDreadnought = GetAllAliveAIDreadnought(allAIPieces);
+                var allDreadnought = GetAllAliveAIDreadnought();
                 StartCoroutine(DreadnoughtBehaviour(allDreadnought));
+
+                if (_moveCounterDreadnought == allDreadnought.Count)
+                {
+                    ExitState();
+                    State = State.CU;
+                }
 
                 break;
             case State.CU:
-                break;
-            default:
+                var allCommandUnits = GetAllAliveAICommandUnits();
+                StartCoroutine(CommandUnitsBehaviour(allCommandUnits));
                 GameManager.instance.EndTurn();
-
                 break;
         }
     }
+
+    private IEnumerator CommandUnitsBehaviour(List<BasePiece> allCommandUnits)
+    {
+        foreach (var cu in allCommandUnits)
+        {
+            var futureTopCu = cu;
+            futureTopCu.CurrentY = cu.CurrentY + 1;
+            var futureBotCu = cu;
+            futureBotCu.CurrentY = cu.CurrentY - 1;
+
+            BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[cu.CurrentX, cu.CurrentY].IsPossibleMove();
+            for (int ii = 0; ii < _rows; ii++)
+            {
+                for (int jj = 0; jj < _cols; jj++)
+                {
+                    //if there is available move
+                    if (BoardManager.instance.allowedMoves[ii, jj])
+                    {
+                        var allPlayerPieces = GetAllPlayerAliveUnits();
+                        
+                        //TODO: finish this
+                        foreach (var pPiece in allPlayerPieces)
+                        {
+                            //check all possible moves of Player
+                            var possibleMoves = pPiece.IsPossibleMove();
+                            for (int i = 0; i < _rows; i++)
+                            {
+                                for (int j = 0; j < _cols; j++)
+                                {
+                                    if (possibleMoves[i,j])
+                                    {
+                                        //TODO maybe add props futureMoveX, futureMoveZ
+                                        pPiece.CurrentX = i;
+                                        pPiece.CurrentY = j;
+                                        var possibleAttacks = pPiece.IsPossibleAttack();
+
+                                        for (int x = 0; x < _rows; x++)
+                                        {
+                                            for (int y = 0; y < _cols; y++)
+                                            {
+                                        //if there are potential attacks for the current pos
+                                                if (possibleAttacks[x,y])
+                                                {
+                                                    if (possibleAttacks[x,y] == cu)
+                                                    {
+                                                        if (possibleAttacks[x, y] == futureTopCu)
+                                                        {
+                                                            //go bot (y-1)
+                                                            MovePiece(cu, futureTopCu.CurrentX, futureTopCu.CurrentY);
+                                                            break;
+                                                        }
+                                                        else if (possibleAttacks[x, y] == futureBotCu)
+                                                        {
+                                                            //go top (y+1)
+                                                            //moving
+                                                            MovePiece(cu, futureTopCu.CurrentX, futureTopCu.CurrentY);
+                                                            break;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //dont move
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        yield return new WaitForSeconds(_timeToWait);
+    }
+
 
     private void ExitState()
     {
         StopAllCoroutines();
     }
 
-    private List<BasePiece> GetAllAliveAIDrones(List<BasePiece> allAIPieces)
-    {
-        List<BasePiece> allDrones = new List<BasePiece>();
-        for (int i = 0; i < _rows; i++)
-        {
-            for (int j = 0; j < _cols; j++)
-            {
-                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
-                {
-                    if (BoardManager.instance.BasePieces[i, j] as Drone)
-                    {
-                        allDrones.Add(BoardManager.instance.BasePieces[i, j]);
-                    }
-
-                    allAIPieces.Add(BoardManager.instance.BasePieces[i, j]);
-                }
-            }
-        }
-        return allDrones;
-    }
-
-    private List<BasePiece> GetAllAliveAIDreadnought(List<BasePiece> allAIPieces)
-    {
-        List<BasePiece> allDreadnought = new List<BasePiece>();
-        for (int i = 0; i < _rows; i++)
-        {
-            for (int j = 0; j < _cols; j++)
-            {
-                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
-                {
-                    if (BoardManager.instance.BasePieces[i, j] as Dreadnought)
-                    {
-                        allDreadnought.Add(BoardManager.instance.BasePieces[i, j]);
-                    }
-
-                    allAIPieces.Add(BoardManager.instance.BasePieces[i, j]);
-                }
-            }
-        }
-        return allDreadnought;
-    }
-
-    private List<BasePiece> GetAllAliveAIComandUnits(List<BasePiece> allAIPieces)
-    {
-        List<BasePiece> allCU = new List<BasePiece>();
-        for (int i = 0; i < _rows; i++)
-        {
-            for (int j = 0; j < _cols; j++)
-            {
-                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
-                {
-
-                    if (BoardManager.instance.BasePieces[i, j] as ComandUnit)
-                    {
-                        allCU.Add(BoardManager.instance.BasePieces[i, j]);
-                    }
-                    allAIPieces.Add(BoardManager.instance.BasePieces[i, j]);
-                }
-            }
-        }
-        return allCU;
-    }
-
-
+    //TODO change it to move to nearest target
     private IEnumerator DreadnoughtBehaviour(List<BasePiece> dreadnoughts)
     {
-        _moveCounter = 0;
         foreach (var dreadnought in dreadnoughts)
         {
             if (!dreadnought.hasBeenMoved)
@@ -230,7 +249,7 @@ public class AI : MonoBehaviour
                         {
                             //moving
                             MovePiece(dreadnought, ii, jj);
-                            _moveCounter++;
+                            _moveCounterDreadnought++;
 
                             //attacking
                             if (dreadnought.hasBeenMoved)
@@ -271,7 +290,7 @@ public class AI : MonoBehaviour
                         {
                             //moving
                             MovePiece(piece, ii, jj);
-                            _moveCounter++;
+                            _moveCounterDrones++;
 
                             //attacking
                             if (piece.hasBeenMoved)
@@ -339,5 +358,84 @@ public class AI : MonoBehaviour
         piece.SetPosition(x, y);
         BoardManager.instance.BasePieces[x, y] = piece;
         piece.hasBeenMoved = true;
+    }
+
+    private List<BasePiece> GetAllAliveAIDrones()
+    {
+        List<BasePiece> allDrones = new List<BasePiece>();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+            {
+                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
+                {
+                    if (BoardManager.instance.BasePieces[i, j] as Drone)
+                    {
+                        allDrones.Add(BoardManager.instance.BasePieces[i, j]);
+                    }
+                }
+            }
+        }
+        return allDrones;
+    }
+
+    private List<BasePiece> GetAllAliveAIDreadnought()
+    {
+        List<BasePiece> allDreadnought = new List<BasePiece>();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+            {
+                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
+                {
+                    if (BoardManager.instance.BasePieces[i, j] as Dreadnought)
+                    {
+                        allDreadnought.Add(BoardManager.instance.BasePieces[i, j]);
+                    }
+                }
+            }
+        }
+        return allDreadnought;
+    }
+
+    private List<BasePiece> GetAllAliveAICommandUnits()
+    {
+        List<BasePiece> allCU = new List<BasePiece>();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+            {
+                if (BoardManager.instance.BasePieces[i, j] != null && !BoardManager.instance.BasePieces[i, j].isPlayer)
+                {
+
+                    if (BoardManager.instance.BasePieces[i, j] as ComandUnit)
+                    {
+                        allCU.Add(BoardManager.instance.BasePieces[i, j]);
+                    }
+                }
+            }
+        }
+        return allCU;
+    }
+   
+    private List<BasePiece> GetAllPlayerAliveUnits()
+    {
+        List<BasePiece> allPlayerPieces = new List<BasePiece>();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+            {
+                if (BoardManager.instance.BasePieces[i, j] != null && BoardManager.instance.BasePieces[i, j].isPlayer)
+                {
+
+                    if (BoardManager.instance.BasePieces[i, j] as ComandUnit)
+                    {
+                        allPlayerPieces.Add(BoardManager.instance.BasePieces[i, j]);
+                    }
+                }
+            }
+        }
+        return allPlayerPieces;
+
     }
 }

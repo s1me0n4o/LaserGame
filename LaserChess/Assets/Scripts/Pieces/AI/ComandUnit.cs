@@ -27,5 +27,33 @@ public class ComandUnit : BasePiece
         }
     }
 
-    //TODO implement movements
+    public override bool[,] IsPossibleMove()
+    {
+        var isPossibleToMove = new bool[8, 8];
+
+        BasePiece piecePosition;
+
+        //Move Forward
+        if (CurrentY != 0)
+        {
+            piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY - 1];
+            if (piecePosition == null)
+            {
+                isPossibleToMove[CurrentX, CurrentY - 1] = true;
+            }
+        }
+
+        //Move Back
+        if (CurrentY != 7)
+        {
+            piecePosition = BoardManager.instance.BasePieces[CurrentX, CurrentY + 1];
+            if (piecePosition == null)
+            {
+                isPossibleToMove[CurrentX, CurrentY + 1] = true;
+            }
+        }
+
+        return isPossibleToMove;
+    }
+
 }

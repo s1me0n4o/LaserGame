@@ -22,7 +22,7 @@ public class SelectionManager : MonoBehaviour
         _camera = Camera.main;
     }
 
-    private void ChangeHasMoved(bool isPlayerTurn)
+    private void TrunHasChanged(bool isPlayerTurn)
     {
         hasMoved = false;
         PossibleMovesManager.instance.HideHighlights();
@@ -39,7 +39,7 @@ public class SelectionManager : MonoBehaviour
 
     void Update()
     {
-        GameManager.OnTurnChange += ChangeHasMoved;
+        GameManager.OnTurnChange += TrunHasChanged;
 
         if (!BoardManager.instance.isBuildFinishied)
         {
