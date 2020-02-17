@@ -82,7 +82,9 @@
     <Compile Include="Assets\Scripts\Pieces\Player\JumpShip.cs" />
     <Compile Include="Assets\Scripts\Pieces\Player\Tank.cs" />
     <Compile Include="Assets\Scripts\PossibleMovesManager.cs" />
+    <Compile Include="Assets\Scripts\SceneLoader.cs" />
     <Compile Include="Assets\Scripts\SelectionManager.cs" />
+    <Compile Include="Assets\Scripts\UI\InfoLoader.cs" />
     <Compile Include="Assets\Scripts\UI\PlayerTurn.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>D:/Unity/Laser Chess/LaserChess/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

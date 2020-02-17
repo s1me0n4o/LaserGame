@@ -143,7 +143,7 @@ public class AI : MonoBehaviour
                     //if there is available move
                     if (BoardManager.instance.allowedMoves[ii, jj])
                     {
-                        var allPlayerPieces = GetAllPlayerAliveUnits();
+                        var allPlayerPieces = GameManager.instance.GetAllPlayerAliveUnits();
                         
                         //TODO: finish this
                         foreach (var pPiece in allPlayerPieces)
@@ -213,7 +213,7 @@ public class AI : MonoBehaviour
             {
                 BoardManager.instance.allowedMoves = BoardManager.instance.BasePieces[dreadnought.CurrentX, dreadnought.CurrentY].IsPossibleMove();
 
-                var allPlayerUnits = GetAllPlayerAliveUnits();
+                var allPlayerUnits = GameManager.instance.GetAllPlayerAliveUnits();
                 allPlayerUnits.UpdatePositions();
                 var nearestEnenmy = allPlayerUnits.FindClosest(dreadnought.transform.position);
 
@@ -319,6 +319,12 @@ public class AI : MonoBehaviour
                     }
                 }
             }
+
+            if (piece.CurrentY == 0)
+            {
+                GameManager.instance.EndGame();
+            }
+
             yield return new WaitForSeconds(_timeToWait);
         }
         if (_allDronesHaveBeenMoved)
@@ -448,23 +454,6 @@ public class AI : MonoBehaviour
         return allCU;
     }
    
-    private KDTree<BasePiece> GetAllPlayerAliveUnits()
-    {
-        KDTree<BasePiece> allPlayerPieces = new KDTree<BasePiece>();
-        for (int i = 0; i < _rows; i++)
-        {
-            for (int j = 0; j < _cols; j++)
-            {
-                if (BoardManager.instance.BasePieces[i, j] != null && BoardManager.instance.BasePieces[i, j].isPlayer)
-                {
-                    allPlayerPieces.Add(BoardManager.instance.BasePieces[i, j]);
-                }
-            }
-        }
-        return allPlayerPieces;
-
-    }
-
     private void CalculateOptimalPath(BasePiece dreadnought, BasePiece nearestEnenmy, out int tempX, out int tempY)
     {
         //getting values between -1 and 1 based on enemy position

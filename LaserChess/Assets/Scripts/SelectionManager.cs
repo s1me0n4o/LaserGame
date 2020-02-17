@@ -66,6 +66,7 @@ public class SelectionManager : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            BoardManager.instance.isGameStarted = true;
             SelectXandY();
             if (_selectedX >= 0 && _selectedY >= 0)
             {

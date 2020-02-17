@@ -24,6 +24,7 @@ public class BoardManager : MonoBehaviour
     public List<float[]> _nodesPosition = new List<float[]>();
       
     public bool isBuildFinishied = false;
+    public bool isGameStarted = false;
 
     public BasePiece[,] BasePieces { get; set; }
     public bool[,] allowedMoves { get; set; }
